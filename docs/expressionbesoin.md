@@ -35,7 +35,7 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
    - Permettre des surcharges de paramètres par ligne de commande
 
 6. **Versionnage**
-   - Implémenter un suivi de version commençant à 0.1.0 Alpha
+   - Implémenter un suivi de version commençant à 0.3.0 Alpha
 
 ## Exigences Détaillées
 
