@@ -12,8 +12,8 @@ package segmentation
 import (
 	"strings"
 
-	"github.com/votre-username/json-ld-converter/internal/parser"
-	"github.com/votre-username/json-ld-converter/pkg/tokenizer"
+	"github.com/chrlesur/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/pkg/tokenizer"
 )
 
 type Segment struct {
@@ -120,7 +120,8 @@ package segmentation
 import (
 	"testing"
 
-	"github.com/votre-username/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/pkg/tokenizer"
 )
 
 func TestSegmenter(t *testing.T) {
@@ -202,9 +203,9 @@ package main
 import (
 	"log"
 
-	"github.com/votre-username/json-ld-converter/internal/config"
-	"github.com/votre-username/json-ld-converter/internal/parser"
-	"github.com/votre-username/json-ld-converter/internal/segmentation"
+	"github.com/chrlesur/json-ld-converter/internal/config"
+	"github.com/chrlesur/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/internal/segmentation"
 )
 
 func main() {
@@ -242,8 +243,8 @@ Pour utiliser le système de segmentation dans d'autres parties du projet, impor
 
 ```go
 import (
-	"github.com/votre-username/json-ld-converter/internal/segmentation"
-	"github.com/votre-username/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/internal/segmentation"
+	"github.com/chrlesur/json-ld-converter/internal/parser"
 )
 
 func processDocument(doc *parser.Document) error {

@@ -48,7 +48,7 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
 - Préserver la structure du document et le contexte à travers les segments
 - Implémenter un système de gestion des métadonnées du document (auteur, date de création, version, etc.)
 
-### 2. Conversion JSON-LD
+### 2. Conversion JSON-LD et Intégration LLM
 
 - Créer un mappage complet des éléments du document vers les types et propriétés Schema.org
 - Développer un moteur de conversion flexible capable de gérer diverses structures de documents
@@ -56,6 +56,16 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
 - S'assurer que chaque segment de sortie JSON-LD respecte la limite de 4 000 tokens
 - Implémenter un mécanisme pour lier les segments JSON-LD liés pour une représentation cohérente
 - Gérer la préservation des liens hypertextes et des références croisées dans la représentation JSON-LD
+- Intégrer des clients API pour différents LLM externes :
+  - Claude (Anthropic)
+  - GPT (OpenAI)
+  - Ollama (pour les modèles locaux)
+  - AI.YOU
+- Implémenter une interface commune `TranslationClient` pour tous les clients LLM
+- Permettre la sélection du LLM à utiliser via la configuration ou les options de ligne de commande
+- Ajouter une option `-i` pour enrichir les instructions de conversion envoyées au LLM
+- Optimiser les requêtes aux LLM pour maximiser l'utilisation du contexte tout en respectant les limites de tokens
+- Implémenter un système de gestion des erreurs et de reconnexion pour les appels API aux LLM
 
 ### 3. Intégration du Vocabulaire Schema.org
 
@@ -98,8 +108,11 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
   - La gestion de la configuration
   - Le contrôle du niveau de log
   - Le suivi de la progression pour le traitement de grands documents
+  - La sélection du LLM à utiliser
+- Ajouter une option `-i` pour spécifier des instructions supplémentaires pour la conversion
 - Fournir une aide détaillée et des informations d'utilisation pour chaque commande
 - Ajouter des options pour la gestion des versions de documents et la comparaison de documents
+- Implémenter un mode interactif pour des conversions à la volée
 
 ### 8. Composant Serveur
 
@@ -177,6 +190,7 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
 - Suivre les meilleures pratiques et les modèles idiomatiques de Go
 - Utiliser les goroutines et les canaux pour le traitement concurrent lorsque c'est approprié
 - Optimiser pour la gestion de documents jusqu'à 120 000 tokens tout en respectant la limite de 4 000 tokens par segment de sortie JSON-LD
+- Assurer la compatibilité avec différents LLM et leurs limites de contexte spécifiques (par exemple, limiter à environ 200 tokens par batch pour Ollama avec des modèles comme llama3.2)
 
 ## Livrables
 

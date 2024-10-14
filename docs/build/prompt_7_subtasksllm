@@ -1,0 +1,55 @@
+# Intégration des clients LLM pour le Convertisseur JSON-LD
+
+Objectif : Implémenter des clients API pour différents modèles de langage (LLM) externes, créer une interface commune, et permettre la sélection du LLM via la configuration ou les options de ligne de commande.
+
+## Tâches :
+
+1. Création de l'interface commune LLM
+   - Dans le répertoire `internal/llm`, créez un fichier `interface.go`
+   - Définissez l'interface `LLMClient` avec une méthode `Translate`
+   - Assurez-vous que l'interface prend en compte le contexte, le contenu à traduire, les langues source et cible, et les instructions supplémentaires
+
+2. Implémentation du client Claude (Anthropic)
+   - Créez un fichier `claude.go` dans le répertoire `internal/llm`
+   - Implémentez la structure `ClaudeClient` avec les champs nécessaires (APIKey, Model, ContextSize, Timeout)
+   - Créez une fonction `NewClaudeClient` pour initialiser le client
+   - Implémentez la méthode `Translate` pour le client Claude
+
+3. Implémentation du client GPT (OpenAI)
+   - Créez un fichier `openai.go` dans le répertoire `internal/llm`
+   - Implémentez la structure `OpenAIClient` avec les champs nécessaires
+   - Créez une fonction `NewOpenAIClient` pour initialiser le client
+   - Implémentez la méthode `Translate` pour le client OpenAI
+
+4. Implémentation du client Ollama
+   - Créez un fichier `ollama.go` dans le répertoire `internal/llm`
+   - Implémentez la structure `OllamaClient` avec les champs nécessaires
+   - Créez une fonction `NewOllamaClient` pour initialiser le client
+   - Implémentez la méthode `Translate` pour le client Ollama
+
+5. Implémentation du client AI.YOU
+   - Créez un fichier `aiyou.go` dans le répertoire `internal/llm`
+   - Implémentez la structure `AIYOUClient` avec les champs nécessaires
+   - Créez une fonction `NewAIYOUClient` pour initialiser le client
+   - Implémentez les méthodes `Login` et `Translate` pour le client AI.YOU
+
+6. Création de la factory pour les clients LLM
+   - Créez un fichier `factory.go` dans le répertoire `internal/llm`
+   - Implémentez une fonction `NewLLMClient` qui crée le client approprié en fonction du type de moteur spécifié
+   - Gérez la récupération des clés API et autres configurations nécessaires
+
+7. Intégration avec la configuration du projet
+   - Modifiez le fichier `internal/config/config.go` pour inclure les paramètres LLM
+   - Mettez à jour le fichier de configuration `config.yaml` pour inclure les nouveaux paramètres LLM
+
+8. Intégration dans le code principal
+   - Dans le fichier principal de l'application, ajoutez le code pour créer et utiliser le client LLM
+   - Assurez-vous que le client LLM peut être sélectionné via la configuration ou les options de ligne de commande
+
+Pour chaque sous-tâche, suivez ces directives générales :
+- Utilisez les meilleures pratiques de Go pour la gestion des erreurs et la structuration du code
+- Assurez-vous que chaque client gère correctement les erreurs, les reconnexions et les limites de tokens spécifiques à chaque LLM
+- Implémentez des tests unitaires pour chaque client
+- Documentez les fonctions et les structures importantes
+
+Veuillez implémenter ces sous-tâches une par une. Une fois que vous avez terminé une sous-tâche, vous pouvez passer à la suivante. Si vous avez besoin de plus de détails sur une sous-tâche spécifique, n'hésitez pas à demander.

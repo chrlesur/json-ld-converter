@@ -18,10 +18,16 @@ type Config struct {
 		File  string `yaml:"file"`
 	} `yaml:"logging"`
 	Conversion struct {
-		MaxTokens       int    `yaml:"max_tokens"`
-		TargetBatchSize int    `yaml:"target_batch_size"`
-		NumThreads      int    `yaml:"num_threads"`
-		Engine          string `yaml:"engine"`
+		MaxTokens        int    `yaml:"max_tokens"`
+		TargetBatchSize  int    `yaml:"target_batch_size"`
+		NumThreads       int    `yaml:"num_threads"`
+		Engine           string `yaml:"engine"`
+		Model            string `yaml:"model"`
+		ContextSize      int    `yaml:"context_size"`
+		Timeout          int    `yaml:"timeout"`
+		OllamaHost       string `yaml:"ollama_host"`
+		OllamaPort       string `yaml:"ollama_port"`
+		AIYOUAssistantID string `yaml:"aiyou_assistant_id"`
 	} `yaml:"conversion"`
 	Schema struct {
 		Version string `yaml:"version"`
@@ -82,6 +88,24 @@ func (c *Config) OverrideFromEnv() {
 	}
 	if engine := os.Getenv("CONVERSION_ENGINE"); engine != "" {
 		c.Conversion.Engine = engine
+	}
+	if model := os.Getenv("CONVERSION_MODEL"); model != "" {
+		c.Conversion.Model = model
+	}
+	if contextSize := os.Getenv("CONTEXT_SIZE"); contextSize != "" {
+		fmt.Sscanf(contextSize, "%d", &c.Conversion.ContextSize)
+	}
+	if timeout := os.Getenv("CONVERSION_TIMEOUT"); timeout != "" {
+		fmt.Sscanf(timeout, "%d", &c.Conversion.Timeout)
+	}
+	if ollamaHost := os.Getenv("OLLAMA_HOST"); ollamaHost != "" {
+		c.Conversion.OllamaHost = ollamaHost
+	}
+	if ollamaPort := os.Getenv("OLLAMA_PORT"); ollamaPort != "" {
+		c.Conversion.OllamaPort = ollamaPort
+	}
+	if aiyouAssistantID := os.Getenv("AIYOU_ASSISTANT_ID"); aiyouAssistantID != "" {
+		c.Conversion.AIYOUAssistantID = aiyouAssistantID
 	}
 	if schemaVersion := os.Getenv("SCHEMA_VERSION"); schemaVersion != "" {
 		c.Schema.Version = schemaVersion

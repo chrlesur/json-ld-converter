@@ -226,11 +226,47 @@ func processContent(content string, schemaOrg *schema.SchemaOrg) {
 }
 ```
 
+## Extensions personnalisées :
+
+Pour ajouter des extensions personnalisées au vocabulaire Schema.org, vous pouvez créer une fonction qui fusionne votre vocabulaire personnalisé avec le vocabulaire Schema.org standard :
+
+```go
+func MergeCustomVocabulary(schemaOrg *SchemaOrg, customTypes map[string]SchemaType, customProperties map[string]SchemaProperty) {
+	for key, value := range customTypes {
+		schemaOrg.Types[key] = value
+	}
+	for key, value := range customProperties {
+		schemaOrg.Properties[key] = value
+	}
+}
+```
+
+Utilisez cette fonction après avoir chargé le vocabulaire Schema.org standard :
+
+```go
+customTypes := map[string]SchemaType{
+	"schema:CustomType": SchemaType{
+		ID:    "schema:CustomType",
+		Label: "Custom Type",
+		// ... autres champs ...
+	},
+}
+customProperties := map[string]SchemaProperty{
+	"schema:customProperty": SchemaProperty{
+		ID:    "schema:customProperty",
+		Label: "Custom Property",
+		// ... autres champs ...
+	},
+}
+
+MergeCustomVocabulary(schemaOrg, customTypes, customProperties)
+```
+
 ## Notes importantes :
 - Assurez-vous de télécharger régulièrement la dernière version du fichier Schema.org pour maintenir votre vocabulaire à jour.
 - La fonction `SuggestProperties` utilise une méthode simple de correspondance de chaînes. Vous pourriez vouloir implémenter des méthodes plus avancées (comme l'analyse NLP) pour une meilleure précision.
-- Cette implémentation ne gère pas les types personnalisés ou les extensions. Si vous en avez besoin, vous devrez étendre la structure `SchemaOrg` pour les inclure.
 - Pensez à implémenter un système de mise en cache pour améliorer les performances lors de l'utilisation répétée du vocabulaire.
 - Testez le système avec divers types de contenus pour vous assurer qu'il fonctionne correctement dans tous les cas.
+- Lorsque vous ajoutez des extensions personnalisées, assurez-vous qu'elles ne rentrent pas en conflit avec le vocabulaire standard de Schema.org.
 
 Veuillez implémenter cette intégration du vocabulaire Schema.org et effectuer les tests nécessaires. Une fois terminé, nous pourrons passer à l'étape suivante du développement du convertisseur JSON-LD.

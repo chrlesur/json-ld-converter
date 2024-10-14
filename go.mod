@@ -10,4 +10,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
+require (
+	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
+	github.com/sashabaranov/go-openai v1.32.0 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
+)

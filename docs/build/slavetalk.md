@@ -1,0 +1,1 @@
+Vérifie le prompt du XXXX° point et assure toi qu'il est complet; c'est un autre chat qui va l'executer, il doit avoir toutes les informations. Organises toi pour ne pas dépasser ton output contexte : il faut que tu découpe en sous tache.
