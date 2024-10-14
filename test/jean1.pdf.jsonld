@@ -1,0 +1,29 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article"
+    }
+  ]
+}

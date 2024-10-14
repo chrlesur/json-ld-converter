@@ -19,7 +19,11 @@ func (p *PDFParser) Parse(r io.Reader) (*Document, error) {
 		return nil, err
 	}
 
-	reader, err := pdf.NewReader(strings.NewReader(string(content)))
+	// Créer un io.ReaderAt à partir du contenu
+	contentReader := strings.NewReader(string(content))
+	size := int64(len(content))
+
+	reader, err := pdf.NewReader(contentReader, size)
 	if err != nil {
 		return nil, err
 	}

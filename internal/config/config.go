@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -18,28 +19,29 @@ type Config struct {
 		File  string `yaml:"file"`
 	} `yaml:"logging"`
 	Conversion struct {
-		MaxTokens        int    `yaml:"max_tokens"`
-		TargetBatchSize  int    `yaml:"target_batch_size"`
-		NumThreads       int    `yaml:"num_threads"`
-		Engine           string `yaml:"engine"`
-		Model            string `yaml:"model"`
-		ContextSize      int    `yaml:"context_size"`
-		Timeout          int    `yaml:"timeout"`
-		OllamaHost       string `yaml:"ollama_host"`
-		OllamaPort       string `yaml:"ollama_port"`
-		AIYOUAssistantID string `yaml:"aiyou_assistant_id"`
+		MaxTokens              int    `yaml:"max_tokens"`
+		TargetBatchSize        int    `yaml:"target_batch_size"`
+		NumThreads             int    `yaml:"num_threads"`
+		Engine                 string `yaml:"engine"`
+		Model                  string `yaml:"model"`
+		ContextSize            int    `yaml:"context_size"`
+		Timeout                int    `yaml:"timeout"`
+		OllamaHost             string `yaml:"ollama_host"`
+		OllamaPort             string `yaml:"ollama_port"`
+		AIYOUAssistantID       string `yaml:"aiyou_assistant_id"`
+		APIKey                 string `yaml:"api_key"`
+		AIYOUEmail             string `yaml:"aiyou_email"`
+		AIYOUPassword          string `yaml:"aiyou_password"`
+		AdditionalInstructions string `yaml:"additional_instructions"`
 	} `yaml:"conversion"`
 	Schema struct {
-		Version string `yaml:"version"`
+		Version  string `yaml:"version"`
+		FilePath string `yaml:"file_path"`
 	} `yaml:"schema"`
 	Segmentation struct {
 		MaxTokens       int `yaml:"max_tokens"`
 		TargetBatchSize int `yaml:"target_batch_size"`
 	} `yaml:"segmentation"`
-	Schema struct {
-		FilePath string `yaml:"file_path"`
-		Version  string `yaml:"version"`
-	} `yaml:"schema"`
 }
 
 var (
@@ -110,4 +112,22 @@ func (c *Config) OverrideFromEnv() {
 	if schemaVersion := os.Getenv("SCHEMA_VERSION"); schemaVersion != "" {
 		c.Schema.Version = schemaVersion
 	}
+}
+
+func Set(key, value string) error {
+	// Cette implémentation est simplifiée et ne gère que les clés de premier niveau
+	switch key {
+	case "server.port":
+		port, err := strconv.Atoi(value)
+		if err != nil {
+			return fmt.Errorf("invalid port number: %s", value)
+		}
+		cfg.Server.Port = port
+	case "server.host":
+		cfg.Server.Host = value
+	// Ajoutez d'autres cas pour les autres clés de configuration
+	default:
+		return fmt.Errorf("unknown configuration key: %s", key)
+	}
+	return nil
 }

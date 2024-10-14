@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -9,18 +10,20 @@ import (
 	"strings"
 
 	"github.com/chrlesur/json-ld-converter/internal/config"
-	"github.com/chrlesur/json-ld-converter/internal/converter"
+	"github.com/chrlesur/json-ld-converter/internal/jsonld"
 	"github.com/chrlesur/json-ld-converter/internal/llm"
 	"github.com/chrlesur/json-ld-converter/internal/logger"
 	"github.com/chrlesur/json-ld-converter/internal/parser"
+	"github.com/chrlesur/json-ld-converter/internal/schema"
+	"github.com/chrlesur/json-ld-converter/internal/segmentation"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
 
 var (
 	cfgFile      string
-	inputFile    string
-	outputFile   string
+	inputFile    *string
+	outputFile   *string
 	engine       string
 	instructions string
 	silent       bool
@@ -30,34 +33,36 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:               "json-ld-converter",
-	Short:             "Convert documents to JSON-LD",
-	Long:              `A CLI tool to convert various document formats to JSON-LD using Schema.org vocabulary.`,
-	PersistentPreRunE: configureLLM,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("JSON-LD Converter v0.3.0 Alpha")
-		err := convert()
-		if err != nil {
-			logger.Error(fmt.Sprintf("Conversion error: %v", err))
-			os.Exit(1)
-		}
-	},
+	Use:   "json-ld-converter",
+	Short: "Convert documents to JSON-LD",
+	Long:  `A CLI tool to convert various document formats to JSON-LD using Schema.org vocabulary.`,
+}
+
+var convertCmd = &cobra.Command{
+	Use:   "convert [input file]",
+	Short: "Convert a file to JSON-LD",
+	Args:  cobra.ExactArgs(1),
+	RunE:  runConvert,
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	// Ajout de la sous-commande "convert"
+	rootCmd.AddCommand(convertCmd)
+
+	outputFile = new(string)
+	// Flags pour la sous-commande "convert"
+	convertCmd.Flags().StringVarP(outputFile, "output", "o", "", "Output file for JSON-LD (default is inputfile.jsonld)")
+	convertCmd.Flags().StringVarP(&engine, "engine", "e", "", "LLM engine to use (overrides config)")
+	convertCmd.Flags().StringVarP(&instructions, "instructions", "n", "", "Additional instructions for LLM")
+
+	// Flags globaux
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./config.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&inputFile, "input", "i", "", "Input file to convert")
-	rootCmd.PersistentFlags().StringVarP(&outputFile, "output", "o", "", "Output file for JSON-LD")
-	rootCmd.PersistentFlags().StringVarP(&engine, "engine", "e", "", "LLM engine to use (overrides config)")
-	rootCmd.PersistentFlags().StringVarP(&instructions, "instructions", "n", "", "Additional instructions for LLM")
 	rootCmd.PersistentFlags().BoolVar(&silent, "silent", false, "Silent mode (no console output)")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Debug mode (verbose logging)")
-	rootCmd.PersistentFlags().BoolVarP(&batchMode, "batch", "b", false, "Batch processing mode")
-	rootCmd.PersistentFlags().BoolVarP(&interactive, "interactive", "t", false, "Interactive mode")
 
-	// Ajout des sous-commandes
+	// Flags pour les autres sous-commandes (si nécessaire)
 	rootCmd.AddCommand(newBatchCmd())
 	rootCmd.AddCommand(newConfigCmd())
 	rootCmd.AddCommand(newInteractiveCmd())
@@ -79,6 +84,8 @@ func initConfig() {
 	}
 	logger.Init(logLevel, "")
 	logger.SetSilentMode(silent)
+	logger.SetDebugMode(debug)
+
 }
 
 func main() {
@@ -88,79 +95,127 @@ func main() {
 	}
 }
 
-func convert() error {
+func convert(inputFilePath, outputFilePath string) error {
 	cfg := config.Get()
+	logger.Debug(fmt.Sprintf("Configuration loaded: %+v", cfg))
+
+	logger.Debug(fmt.Sprintf("Input file: %s", inputFilePath))
+	logger.Debug(fmt.Sprintf("Output file: %s", outputFilePath))
 
 	// Création du client LLM
 	client, err := llm.NewLLMClient(cfg)
 	if err != nil {
 		return fmt.Errorf("error creating LLM client: %w", err)
 	}
+	logger.Debug("LLM client created successfully")
+
+	// Chargement du schéma Schema.org
+	schemaOrg, err := schema.LoadSchemaOrg(cfg.Schema.FilePath)
+	if err != nil {
+		return fmt.Errorf("error loading Schema.org: %w", err)
+	}
+	logger.Debug("Schema.org loaded successfully")
 
 	// Création du parseur de document
-	p, err := parser.NewParser(getFileType(*inputFile))
+	p, err := parser.NewParser(getFileType(inputFilePath))
 	if err != nil {
 		return fmt.Errorf("error creating parser: %w", err)
 	}
+	logger.Debug(fmt.Sprintf("Parser created for file type: %s", getFileType(inputFilePath)))
 
 	// Lecture et analyse du fichier d'entrée
-	file, err := os.Open(*inputFile)
+	file, err := os.Open(inputFilePath)
 	if err != nil {
 		return fmt.Errorf("error opening input file: %w", err)
 	}
 	defer file.Close()
+	logger.Debug("Input file opened successfully")
 
 	doc, err := p.Parse(file)
 	if err != nil {
 		return fmt.Errorf("error parsing document: %w", err)
 	}
+	logger.Debug("Document parsed successfully")
 
 	// Création du convertisseur
-	conv := converter.NewConverter(client, cfg.Conversion.MaxTokens, cfg.Conversion.TargetBatchSize)
+	conv := jsonld.NewConverter(schemaOrg, client, cfg.Conversion.MaxTokens, instructions)
+	logger.Debug("Converter created successfully")
 
-	// Conversion du document en JSON-LD
-	ctx := context.Background()
-	jsonLD, err := conv.Convert(ctx, doc, *additionalInstructions)
+	// Segmentation du document
+	segments, err := segmentation.SegmentDocument(doc, cfg.Conversion.MaxTokens)
 	if err != nil {
-		return fmt.Errorf("error converting to JSON-LD: %w", err)
+		return fmt.Errorf("error segmenting document: %w", err)
+	}
+	logger.Debug(fmt.Sprintf("Document segmented into %d parts", len(segments)))
+
+	var allResults []map[string]interface{}
+
+	// Conversion de chaque segment en JSON-LD
+	for i, segment := range segments {
+		logger.Debug(fmt.Sprintf("Processing segment %d of %d", i+1, len(segments)))
+
+		segmentDoc := &parser.Document{
+			Content:  segment.Content, // Utilisez segment.Content au lieu de segment directement
+			Metadata: doc.Metadata,
+		}
+
+		ctx := context.Background()
+		jsonLD, err := conv.Convert(ctx, segmentDoc)
+		if err != nil {
+			return fmt.Errorf("error converting segment %d to JSON-LD: %w", i+1, err)
+		}
+
+		allResults = append(allResults, jsonLD)
+	}
+
+	// Combinaison de tous les résultats
+	combinedResult := map[string]interface{}{
+		"@context": "https://schema.org",
+		"@graph":   allResults,
+	}
+
+	// Sérialisation du JSON-LD combiné
+	jsonString, err := json.MarshalIndent(combinedResult, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshaling combined JSON-LD: %w", err)
 	}
 
 	// Écriture du résultat dans le fichier de sortie
-	err = os.WriteFile(*outputFile, []byte(jsonLD), 0644)
+	err = os.WriteFile(outputFilePath, jsonString, 0644)
 	if err != nil {
 		return fmt.Errorf("error writing output file: %w", err)
 	}
+	logger.Debug("JSON-LD written to output file successfully")
 
 	logger.Info("Conversion completed successfully.")
 	return nil
 }
 
 func newBatchCmd() *cobra.Command {
-	var inputDir string
-	var outputDir string
+	var inputDir, outputDir string
 
 	cmd := &cobra.Command{
 		Use:   "batch",
 		Short: "Process multiple files in batch mode",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			files, err := ioutil.ReadDir(inputDir)
 			if err != nil {
-				logger.Error(fmt.Sprintf("Error reading input directory: %v", err))
-				return
+				return fmt.Errorf("error reading input directory: %w", err)
 			}
 
 			for _, file := range files {
 				if file.IsDir() {
 					continue
 				}
-				inputFile = filepath.Join(inputDir, file.Name())
-				outputFile = filepath.Join(outputDir, file.Name()+".jsonld")
-				logger.Info(fmt.Sprintf("Processing file: %s", inputFile))
-				err := convert()
+				inputFilePath := filepath.Join(inputDir, file.Name())
+				outputFilePath := filepath.Join(outputDir, file.Name()+".jsonld")
+				logger.Info(fmt.Sprintf("Processing file: %s", inputFilePath))
+				err := convert(inputFilePath, outputFilePath)
 				if err != nil {
-					logger.Error(fmt.Sprintf("Error processing file %s: %v", inputFile, err))
+					logger.Error(fmt.Sprintf("Error processing file %s: %v", inputFilePath, err))
 				}
 			}
+			return nil
 		},
 	}
 
@@ -207,6 +262,8 @@ func newConfigCmd() *cobra.Command {
 }
 
 func newInteractiveCmd() *cobra.Command {
+	var inputDir, outputDir string
+
 	return &cobra.Command{
 		Use:   "interactive",
 		Short: "Start interactive mode",
@@ -219,10 +276,19 @@ func newInteractiveCmd() *cobra.Command {
 				if input == "quit" {
 					break
 				}
-				inputFile = input
-				fmt.Print("Enter output file path: ")
-				fmt.Scanln(&outputFile)
-				err := convert()
+
+				// Demander le répertoire de sortie si ce n'est pas déjà fait
+				if outputDir == "" {
+					fmt.Print("Enter output directory: ")
+					fmt.Scanln(&outputDir)
+				}
+
+				// Utiliser filepath.Base pour obtenir le nom du fichier
+				fileName := filepath.Base(input)
+				inputFilePath := filepath.Join(inputDir, fileName)
+				outputFilePath := filepath.Join(outputDir, fileName+".jsonld")
+
+				err := convert(inputFilePath, outputFilePath)
 				if err != nil {
 					logger.Error(fmt.Sprintf("Conversion error: %v", err))
 				} else {
@@ -315,5 +381,29 @@ func configureLLM(cmd *cobra.Command, args []string) error {
 		cfg.Conversion.AdditionalInstructions = instructions
 	}
 
+	return nil
+}
+
+func runConvert(cmd *cobra.Command, args []string) error {
+	inputFile := args[0]
+	if *outputFile == "" {
+		*outputFile = inputFile + ".jsonld"
+	}
+
+	logger.Debug(fmt.Sprintf("Input file: %s", inputFile))
+	logger.Debug(fmt.Sprintf("Output file: %s", *outputFile))
+
+	// Vérifiez que le fichier d'entrée existe
+	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
+		return fmt.Errorf("input file does not exist: %s", inputFile)
+	}
+
+	// Appel à la fonction de conversion
+	err := convert(inputFile, *outputFile)
+	if err != nil {
+		return fmt.Errorf("conversion error: %w", err)
+	}
+
+	logger.Info("Conversion completed successfully.")
 	return nil
 }

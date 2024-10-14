@@ -1,275 +1,346 @@
 package jsonld
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/chrlesur/json-ld-converter/internal/llm"
+	"github.com/chrlesur/json-ld-converter/internal/logger"
 	"github.com/chrlesur/json-ld-converter/internal/parser"
 	"github.com/chrlesur/json-ld-converter/internal/schema"
 	"github.com/chrlesur/json-ld-converter/pkg/tokenizer"
 )
 
 type Converter struct {
-	schemaVocabulary       *schema.Vocabulary
-	llmClient              llm.TranslationClient
+	schemaOrg              *schema.SchemaOrg
+	llmClient              llm.LLMClient
 	maxTokens              int
 	additionalInstructions string
 }
 
-func NewConverter(vocabulary *schema.Vocabulary, client llm.TranslationClient, maxTokens int, instructions string) *Converter {
+func NewConverter(schemaOrg *schema.SchemaOrg, client llm.LLMClient, maxTokens int, instructions string) *Converter {
+	logger.Info("Creating new Converter instance")
 	return &Converter{
-		schemaVocabulary:       vocabulary,
+		schemaOrg:              schemaOrg,
 		llmClient:              client,
 		maxTokens:              maxTokens,
 		additionalInstructions: instructions,
 	}
 }
 
-func (c *Converter) Convert(segment *parser.DocumentSegment) (map[string]interface{}, error) {
-    // Vérifier si le contenu dépasse la limite de tokens
-    if tokenizer.CountTokens(segment.Content) > c.maxTokens {
-        return nil, &TokenLimitError{Limit: c.maxTokens, Count: tokenizer.CountTokens(segment.Content)}
-    }
+func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[string]interface{}, error) {
+	logger.Debug(fmt.Sprintf("Starting conversion process for document with %d tokens", tokenizer.CountTokens(doc.Content)))
 
-    // Initialiser la structure JSON-LD de base
-    jsonLD := map[string]interface{}{
-        "@context": "https://schema.org",
-    }
-
-    // Utiliser le LLM pour enrichir la conversion
-    enrichedContent, err := c.enrichContentWithLLM(segment.Content)
-    if err != nil {
-        return nil, &ConversionError{Stage: "enrichissement", Err: err}
-    }
-
-    // Déterminer le type principal
-    mainType, err := c.determineMainType(enrichedContent)
-    if err != nil {
-        // Stratégie de repli : utiliser "Thing" comme type par défaut
-        mainType = "Thing"
-        jsonLD["@type"] = mainType
-    }
-
-    // Gérer les structures imbriquées
-    nestedContent, err := c.handleNestedStructures(enrichedContent, mainType)
-    if err != nil {
-        // Stratégie de repli : utiliser une structure plate si la structure imbriquée échoue
-        nestedContent, err = c.extractProperties(enrichedContent, mainType)
-        if err != nil {
-            return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
-        }
-    }
-
-    // Ajouter le contenu imbriqué à la structure JSON-LD
-    for key, value := range nestedContent {
-        jsonLD[key] = value
-    }
-
-    // Appliquer les instructions supplémentaires
-    jsonLD, err = c.applyAdditionalInstructions(jsonLD)
-    if err != nil {
-        // Ignorer l'erreur des instructions supplémentaires et continuer avec le JSON-LD non modifié
-        fmt.Printf("Avertissement : impossible d'appliquer les instructions supplémentaires : %v\n", err)
-    }
-
-    // Vérifier la limite de tokens
-    if err := c.checkTokenLimit(jsonLD); err != nil {
-        return nil, &TokenLimitError{Limit: c.maxTokens, Count: tokenizer.CountTokens(fmt.Sprintf("%v", jsonLD))}
-    }
-
-    return jsonLD, nil
-}
-
-func (c *Converter) enrichContentWithLLM(content string) (string, error) {
-	prompt := fmt.Sprintf("Analysez et enrichissez sémantiquement le contenu suivant : %s", content)
-	enrichedContent, err := c.llmClient.Translate(prompt, "français", "français", "")
-	if err != nil {
-		return "", fmt.Errorf("erreur lors de l'appel au LLM : %w", err)
-	}
-	return enrichedContent, nil
-}
-
-func (c *Converter) mapToSchemaOrg(content string) (map[string]interface{}, error) {
-	// Analyser le contenu pour déterminer le type principal
-	mainType, err := c.determineMainType(content)
-	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la détermination du type principal : %w", err)
+	// Vérifier si le contenu dépasse la limite de tokens
+	if tokenizer.CountTokens(doc.Content) > c.maxTokens {
+		logger.Warning(fmt.Sprintf("Document exceeds token limit: %d tokens (limit: %d)", tokenizer.CountTokens(doc.Content), c.maxTokens))
+		return nil, &TokenLimitError{Limit: c.maxTokens, Count: tokenizer.CountTokens(doc.Content)}
 	}
 
-	// Initialiser la structure JSON-LD avec le type principal
+	// Initialiser la structure JSON-LD de base
 	jsonLD := map[string]interface{}{
-		"@type": mainType,
+		"@context": "https://schema.org",
 	}
+	logger.Debug("Initialized base JSON-LD structure")
 
-	// Extraire et mapper les propriétés pertinentes
-	properties, err := c.extractProperties(content, mainType)
+	// Utiliser le LLM pour enrichir la conversion
+	logger.Info("Enriching content with LLM")
+	enrichedContent, err := c.enrichContentWithLLM(ctx, doc.Content)
 	if err != nil {
-		return nil, fmt.Errorf("erreur lors de l'extraction des propriétés : %w", err)
+		logger.Error(fmt.Sprintf("Error enriching content with LLM: %v", err))
+		return nil, &ConversionError{Stage: "enrichissement", Err: err}
 	}
+	logger.Debug("Content successfully enriched by LLM")
 
-	// Ajouter les propriétés à la structure JSON-LD
-	for key, value := range properties {
+	// Déterminer le type principal
+	logger.Info("Determining main type")
+	mainType, err := c.determineMainType(ctx, enrichedContent)
+	if err != nil {
+		logger.Warning(fmt.Sprintf("Error determining main type: %v. Falling back to 'Thing'", err))
+		// Stratégie de repli : utiliser "Thing" comme type par défaut
+		mainType = "Thing"
+		jsonLD["@type"] = mainType
+	}
+	logger.Debug(fmt.Sprintf("Main type determined: %s", mainType))
+
+	// Gérer les structures imbriquées
+	logger.Info("Handling nested structures")
+	nestedContent, err := c.handleNestedStructures(ctx, enrichedContent, mainType)
+	if err != nil {
+		logger.Warning(fmt.Sprintf("Error handling nested structures: %v. Falling back to flat structure", err))
+		// Stratégie de repli : utiliser une structure plate si la structure imbriquée échoue
+		nestedContent, err = c.extractProperties(ctx, enrichedContent, mainType)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Error extracting properties: %v", err))
+			return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
+		}
+	}
+	logger.Debug("Nested structures handled successfully")
+
+	// Ajouter le contenu imbriqué à la structure JSON-LD
+	for key, value := range nestedContent {
 		jsonLD[key] = value
 	}
+	logger.Debug("Nested content added to JSON-LD structure")
 
+	// Appliquer les instructions supplémentaires
+	logger.Info("Applying additional instructions")
+	jsonLD, err = c.applyAdditionalInstructions(ctx, jsonLD)
+	if err != nil {
+		// Ignorer l'erreur des instructions supplémentaires et continuer avec le JSON-LD non modifié
+		logger.Warning(fmt.Sprintf("Unable to apply additional instructions: %v", err))
+	} else {
+		logger.Debug("Additional instructions applied successfully")
+	}
+
+	// Vérifier la limite de tokens
+	logger.Info("Checking final token limit")
+	if err := c.checkTokenLimit(jsonLD); err != nil {
+		logger.Error(fmt.Sprintf("Final JSON-LD exceeds token limit: %v", err))
+		return nil, &TokenLimitError{Limit: c.maxTokens, Count: tokenizer.CountTokens(fmt.Sprintf("%v", jsonLD))}
+	}
+	logger.Debug("Final JSON-LD within token limit")
+
+	logger.Info("Conversion process completed successfully")
 	return jsonLD, nil
 }
 
-func (c *Converter) determineMainType(content string) (string, error) {
-	// Utiliser le LLM pour déterminer le type principal du contenu
-	prompt := fmt.Sprintf("Déterminez le type Schema.org le plus approprié pour le contenu suivant : %s", content)
-	response, err := c.llmClient.Translate(prompt, "français", "français", "")
+func (c *Converter) enrichContentWithLLM(ctx context.Context, content string) (string, error) {
+	logger.Debug("Enriching content with LLM")
+	prompt := fmt.Sprintf("Analyzez et enrichissez sémantiquement le contenu suivant : %s", content)
+	enrichedContent, err := c.llmClient.Analyze(ctx, prompt)
 	if err != nil {
+		logger.Error(fmt.Sprintf("Error calling LLM for content enrichment: %v", err))
+		return "", fmt.Errorf("erreur lors de l'appel au LLM : %w", err)
+	}
+	logger.Debug("Content successfully enriched by LLM")
+	return enrichedContent, nil
+}
+
+func (c *Converter) determineMainType(ctx context.Context, content string) (string, error) {
+	logger.Debug("Determining main type")
+	prompt := fmt.Sprintf("Déterminez le type Schema.org le plus approprié pour le contenu suivant. Répondez uniquement avec le nom du type, sans explication : %s", content)
+	response, err := c.llmClient.Analyze(ctx, prompt)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error calling LLM for main type determination: %v", err))
 		return "", fmt.Errorf("erreur lors de l'appel au LLM : %w", err)
 	}
 
-	// Vérifier si le type retourné existe dans le vocabulaire Schema.org
-	if !c.schemaVocabulary.TypeExists(response) {
+	// Extraire un type Schema.org valide de la réponse
+	mainType := c.extractSchemaOrgType(response)
+
+	// Vérifier si le type extrait existe dans le vocabulaire Schema.org
+	if _, ok := c.schemaOrg.GetType(mainType); !ok {
+		logger.Warning(fmt.Sprintf("Type '%s' not found in Schema.org vocabulary. Using 'Thing' as default", mainType))
 		return "Thing", nil // Utiliser "Thing" comme type par défaut si le type n'est pas reconnu
 	}
 
-	return response, nil
+	logger.Debug(fmt.Sprintf("Main type determined: %s", mainType))
+	return mainType, nil
 }
 
-func (c *Converter) extractProperties(content string, mainType string) (map[string]interface{}, error) {
+func (c *Converter) extractSchemaOrgType(response string) string {
+	logger.Debug(fmt.Sprintf("Extracting Schema.org type from LLM response: %s", response))
+
+	// Liste des types Schema.org courants à rechercher
+	commonTypes := []string{"Article", "Person", "Event", "Organization", "Place", "CreativeWork", "Thing"}
+
+	// Vérifier si l'un des types courants est présent dans la réponse
+	for _, t := range commonTypes {
+		if strings.Contains(response, t) {
+			logger.Debug(fmt.Sprintf("Found common Schema.org type: %s", t))
+			return t
+		}
+	}
+
+	// Si aucun type commun n'est trouvé, chercher le premier mot qui pourrait être un type
+	words := strings.Fields(response)
+	for _, word := range words {
+		// Vérifier si le mot commence par une majuscule (potentiel type Schema.org)
+		if len(word) > 0 && unicode.IsUpper(rune(word[0])) {
+			logger.Debug(fmt.Sprintf("Extracted potential Schema.org type: %s", word))
+			return word
+		}
+	}
+
+	logger.Warning("No valid Schema.org type found in response. Defaulting to 'Thing'")
+	return "Thing"
+}
+
+func (c *Converter) extractProperties(ctx context.Context, content string, mainType string) (map[string]interface{}, error) {
+	logger.Debug(fmt.Sprintf("Extracting properties for type: %s", mainType))
 	properties := make(map[string]interface{})
 
 	// Obtenir les propriétés applicables pour le type principal
-	applicableProperties := c.schemaVocabulary.GetPropertiesForType(mainType)
+	schemaType, ok := c.schemaOrg.GetType(mainType)
+	if !ok {
+		logger.Error(fmt.Sprintf("Type not found in schema: %s", mainType))
+		return nil, fmt.Errorf("type non trouvé dans le schéma : %s", mainType)
+	}
 
 	// Utiliser le LLM pour extraire les valeurs des propriétés applicables
-	for _, prop := range applicableProperties {
+	for _, prop := range schemaType.Properties {
+		logger.Debug(fmt.Sprintf("Extracting property: %s", prop))
 		prompt := fmt.Sprintf("Extrayez la valeur de la propriété '%s' pour un objet de type '%s' à partir du contenu suivant : %s", prop, mainType, content)
-		value, err := c.llmClient.Translate(prompt, "français", "français", "")
+		value, err := c.llmClient.Analyze(ctx, prompt)
 		if err != nil {
+			logger.Error(fmt.Sprintf("Error extracting property '%s': %v", prop, err))
 			return nil, fmt.Errorf("erreur lors de l'extraction de la propriété '%s' : %w", prop, err)
 		}
 
 		if value != "" {
 			properties[prop] = value
+			logger.Debug(fmt.Sprintf("Property '%s' extracted with value: %s", prop, value))
+		} else {
+			logger.Debug(fmt.Sprintf("No value found for property: %s", prop))
 		}
 	}
 
+	logger.Info(fmt.Sprintf("Extracted %d properties for type %s", len(properties), mainType))
 	return properties, nil
 }
 
-func (c *Converter) checkTokenLimit(jsonLD map[string]interface{}) error {
-	jsonString, err := json.Marshal(jsonLD)
+func (c *Converter) handleNestedStructures(ctx context.Context, content string, mainType string) (map[string]interface{}, error) {
+	logger.Debug(fmt.Sprintf("Handling nested structures for type: %s", mainType))
+	jsonLD := make(map[string]interface{})
+	jsonLD["@type"] = mainType
+
+	properties, err := c.extractProperties(ctx, content, mainType)
 	if err != nil {
-		return fmt.Errorf("erreur lors de la sérialisation JSON : %w", err)
+		logger.Error(fmt.Sprintf("Error extracting properties: %v", err))
+		return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
 	}
 
-	tokenCount := tokenizer.CountTokens(string(jsonString))
-	if tokenCount > c.maxTokens {
-		return fmt.Errorf("la limite de tokens (%d) a été dépassée : %d tokens", c.maxTokens, tokenCount)
+	for key, value := range properties {
+		logger.Debug(fmt.Sprintf("Processing property: %s", key))
+		if c.isObjectProperty(mainType, key) {
+			logger.Debug(fmt.Sprintf("Property %s is an object property", key))
+			nestedType, err := c.getExpectedType(mainType, key)
+			if err != nil {
+				logger.Warning(fmt.Sprintf("Error getting expected type for property %s: %v. Using 'Thing' as default", key, err))
+				// Stratégie de repli : utiliser "Thing" comme type par défaut pour les propriétés d'objet
+				nestedType = "Thing"
+			}
+
+			nestedContent, err := c.extractNestedContent(ctx, content, key)
+			if err != nil {
+				logger.Warning(fmt.Sprintf("Error extracting nested content for property %s: %v. Using simple text value", key, err))
+				// Stratégie de repli : utiliser la valeur extraite comme contenu texte simple
+				jsonLD[key] = value
+				continue
+			}
+
+			nestedStructure, err := c.handleNestedStructures(ctx, nestedContent, nestedType)
+			if err != nil {
+				logger.Warning(fmt.Sprintf("Error handling nested structure for property %s: %v. Using flat structure", key, err))
+				// Stratégie de repli : utiliser une structure plate pour le contenu imbriqué
+				jsonLD[key] = map[string]interface{}{
+					"@type": nestedType,
+					"text":  nestedContent,
+				}
+			} else {
+				jsonLD[key] = nestedStructure
+			}
+		} else {
+			jsonLD[key] = value
+		}
 	}
 
-	return nil
+	logger.Info(fmt.Sprintf("Nested structures handled for type %s with %d properties", mainType, len(jsonLD)))
+	return jsonLD, nil
 }
 
-func (c *Converter) handleNestedStructures(content string, mainType string) (map[string]interface{}, error) {
-    jsonLD := make(map[string]interface{})
-    jsonLD["@type"] = mainType
-
-    properties, err := c.extractProperties(content, mainType)
-    if err != nil {
-        return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
-    }
-
-    for key, value := range properties {
-        if c.schemaVocabulary.IsObjectProperty(mainType, key) {
-            nestedType, err := c.schemaVocabulary.GetExpectedType(mainType, key)
-            if err != nil {
-                // Stratégie de repli : utiliser "Thing" comme type par défaut pour les propriétés d'objet
-                nestedType = "Thing"
-            }
-            
-            nestedContent, err := c.extractNestedContent(content, key)
-            if err != nil {
-                // Stratégie de repli : utiliser la valeur extraite comme contenu texte simple
-                jsonLD[key] = value
-                continue
-            }
-
-            nestedStructure, err := c.handleNestedStructures(nestedContent, nestedType)
-            if err != nil {
-                // Stratégie de repli : utiliser une structure plate pour le contenu imbriqué
-                jsonLD[key] = map[string]interface{}{
-                    "@type": nestedType,
-                    "text":  nestedContent,
-                }
-            } else {
-                jsonLD[key] = nestedStructure
-            }
-        } else {
-            jsonLD[key] = value
-        }
-    }
-
-    return jsonLD, nil
+func (c *Converter) isObjectProperty(typeName, propertyName string) bool {
+	// Implémentez la logique pour déterminer si une propriété est un objet
+	// Cela peut impliquer de vérifier le type de la propriété dans le schéma
+	logger.Debug(fmt.Sprintf("Checking if property %s of type %s is an object property", propertyName, typeName))
+	return false // Placeholder
 }
 
-func (c *Converter) extractNestedContent(content string, property string) (string, error) {
+func (c *Converter) getExpectedType(typeName, propertyName string) (string, error) {
+	// Implémentez la logique pour obtenir le type attendu d'une propriété
+	logger.Debug(fmt.Sprintf("Getting expected type for property %s of type %s", propertyName, typeName))
+	return "", fmt.Errorf("not implemented")
+}
+
+func (c *Converter) extractNestedContent(ctx context.Context, content string, property string) (string, error) {
+	logger.Debug(fmt.Sprintf("Extracting nested content for property: %s", property))
 	prompt := fmt.Sprintf("Extrayez le contenu spécifique à la propriété '%s' à partir du texte suivant : %s", property, content)
-	nestedContent, err := c.llmClient.Translate(prompt, "français", "français", "")
+	nestedContent, err := c.llmClient.Analyze(ctx, prompt)
 	if err != nil {
+		logger.Error(fmt.Sprintf("Error extracting nested content for property %s: %v", property, err))
 		return "", fmt.Errorf("erreur lors de l'extraction du contenu imbriqué : %w", err)
 	}
+	logger.Debug(fmt.Sprintf("Nested content extracted for property %s", property))
 	return nestedContent, nil
 }
 
-func (c *Converter) applyAdditionalInstructions(jsonLD map[string]interface{}) (map[string]interface{}, error) {
+func (c *Converter) applyAdditionalInstructions(ctx context.Context, jsonLD map[string]interface{}) (map[string]interface{}, error) {
 	if c.additionalInstructions == "" {
+		logger.Debug("No additional instructions to apply")
 		return jsonLD, nil
 	}
 
+	logger.Info("Applying additional instructions")
 	prompt := fmt.Sprintf("Appliquez les instructions suivantes au JSON-LD : %s\nJSON-LD actuel : %v",
 		c.additionalInstructions, jsonLD)
 
-	response, err := c.llmClient.Translate(prompt, "français", "français", "")
+	response, err := c.llmClient.Analyze(ctx, prompt)
 	if err != nil {
+		logger.Error(fmt.Sprintf("Error applying additional instructions: %v", err))
 		return nil, fmt.Errorf("erreur lors de l'application des instructions supplémentaires : %w", err)
 	}
 
 	var modifiedJsonLD map[string]interface{}
 	err = json.Unmarshal([]byte(response), &modifiedJsonLD)
 	if err != nil {
+		logger.Error(fmt.Sprintf("Error unmarshaling modified JSON-LD: %v", err))
 		return nil, fmt.Errorf("erreur lors de la désérialisation du JSON-LD modifié : %w", err)
 	}
 
+	logger.Debug("Additional instructions applied successfully")
 	return modifiedJsonLD, nil
 }
 
-func (c *Converter) splitContent(content string) []string {
-	tokens := tokenizer.Tokenize(content)
-	var segments []string
-	var currentSegment []string
-
-	for _, token := range tokens {
-		if len(currentSegment)+1 > c.maxTokens/2 { // Utilisation de la moitié de la limite pour laisser de la place à la structure JSON-LD
-			segments = append(segments, strings.Join(currentSegment, " "))
-			currentSegment = []string{}
-		}
-		currentSegment = append(currentSegment, token)
+func (c *Converter) checkTokenLimit(jsonLD map[string]interface{}) error {
+	logger.Debug("Checking token limit for final JSON-LD")
+	jsonString, err := json.Marshal(jsonLD)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error marshaling JSON-LD: %v", err))
+		return fmt.Errorf("erreur lors de la sérialisation JSON : %w", err)
 	}
 
-	if len(currentSegment) > 0 {
-		segments = append(segments, strings.Join(currentSegment, " "))
+	tokenCount := tokenizer.CountTokens(string(jsonString))
+	if tokenCount > c.maxTokens {
+		logger.Warning(fmt.Sprintf("Token limit exceeded: %d tokens (limit: %d)", tokenCount, c.maxTokens))
+		return fmt.Errorf("la limite de tokens (%d) a été dépassée : %d tokens", c.maxTokens, tokenCount)
 	}
 
-	return segments
+	logger.Debug(fmt.Sprintf("JSON-LD is within token limit: %d tokens", tokenCount))
+	return nil
 }
 
-func (c *Converter) convertLargeDocument(content string) ([]map[string]interface{}, error) {
+func (c *Converter) splitContent(content string) []string {
+	logger.Debug(fmt.Sprintf("Splitting content into tokens (total length: %d)", len(content)))
+	return tokenizer.SplitIntoTokens(content)
+}
+
+func (c *Converter) convertLargeDocument(ctx context.Context, content string) ([]map[string]interface{}, error) {
+	logger.Info("Starting conversion of large document")
 	segments := c.splitContent(content)
+	logger.Debug(fmt.Sprintf("Document split into %d segments", len(segments)))
+
 	var results []map[string]interface{}
 
 	for i, segment := range segments {
-		jsonLD, err := c.convertSegment(segment)
+		logger.Info(fmt.Sprintf("Processing segment %d of %d", i+1, len(segments)))
+		jsonLD, err := c.convertSegment(ctx, segment)
 		if err != nil {
-			return nil, fmt.Errorf("erreur lors de la conversion du segment %d : %w", i, err)
+			logger.Error(fmt.Sprintf("Error converting segment %d: %v", i+1, err))
+			return nil, fmt.Errorf("erreur lors de la conversion du segment %d : %w", i+1, err)
 		}
 
 		// Ajouter des métadonnées pour indiquer la segmentation
@@ -277,14 +348,31 @@ func (c *Converter) convertLargeDocument(content string) ([]map[string]interface
 			"index": i + 1,
 			"total": len(segments),
 		}
+		logger.Debug(fmt.Sprintf("Added segmentation metadata to segment %d", i+1))
 
 		results = append(results, jsonLD)
+		logger.Info(fmt.Sprintf("Segment %d processed successfully", i+1))
 	}
 
+	logger.Info(fmt.Sprintf("Large document conversion completed. Total segments processed: %d", len(segments)))
 	return results, nil
 }
 
-func (c *Converter) convertSegment(segment string) (map[string]interface{}, error) {
+func (c *Converter) convertSegment(ctx context.Context, segment string) (map[string]interface{}, error) {
+	logger.Debug(fmt.Sprintf("Converting segment (length: %d characters)", len(segment)))
+
+	// Créer un Document temporaire pour le segment
+	doc := &parser.Document{Content: segment}
+
+	logger.Debug("Created temporary Document for segment")
+
 	// Utiliser la méthode Convert existante
-	return c.Convert(&parser.DocumentSegment{Content: segment})
+	result, err := c.Convert(ctx, doc)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error converting segment: %v", err))
+		return nil, fmt.Errorf("erreur lors de la conversion du segment : %w", err)
+	}
+
+	logger.Debug("Segment converted successfully")
+	return result, nil
 }
