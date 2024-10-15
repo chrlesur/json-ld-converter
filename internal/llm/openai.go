@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chrlesur/json-ld-converter/internal/logger"
 	"github.com/sashabaranov/go-openai"
 )
 
-// OpenAIClient implémente l'interface LLMClient pour les modèles GPT d'OpenAI
 type OpenAIClient struct {
 	client      *openai.Client
 	model       string
@@ -16,7 +16,6 @@ type OpenAIClient struct {
 	timeout     time.Duration
 }
 
-// NewOpenAIClient crée et retourne une nouvelle instance de OpenAIClient
 func NewOpenAIClient(apiKey, model string, contextSize int, timeout time.Duration) *OpenAIClient {
 	return &OpenAIClient{
 		client:      openai.NewClient(apiKey),
@@ -26,30 +25,11 @@ func NewOpenAIClient(apiKey, model string, contextSize int, timeout time.Duratio
 	}
 }
 
-// Translate implémente la méthode de l'interface LLMClient pour OpenAI
-func (c *OpenAIClient) Analyze(ctx context.Context, content string) (string, error) {
-	prompt := `Analysez le contenu fourni (représentant une partie d'un document plus large) et identifiez les principaux triplets entité-relation-attribut présents dans le texte. Concentrez-vous sur les concepts et relations importants au niveau du paragraphe, en gardant la chronologie des événements.
+func (c *OpenAIClient) Analyze(ctx context.Context, content string, analysisContext *AnalysisContext) (string, *AnalysisContext, error) {
+	logger.Debug("Starting analysis with OpenAI API")
+	prompt := BuildPromptWithContext(content, analysisContext)
 
-Instructions :
-1. Analysez chaque paragraphe du chunk en détail.
-2. Identifiez les triplets les plus pertinents et significatifs, en vous concentrant sur les idées principales et les informations clés.
-3. Pour chaque triplet qui représente un fait à un moment donné, indiquez un lien vers l'événement précédent et suivant s'ils existent dans le même chunk.
-4. Présentez les résultats sous forme de liste de triplets, un par ligne, séparés par des tabulations.
-
-Format de réponse attendu :
-"Entité principale"	"Relation importante"	"Attribut ou entité liée significative"	"Événement précédent (si applicable)"	"Événement suivant (si applicable)"
-...
-
-Assurez-vous que :
-- Chaque triplet représente une information importante extraite du texte fourni.
-- Les concepts, relations et attributs identifiés sont pertinents pour la compréhension globale du document.
-- Les liens vers les événements précédents et suivants sont inclus uniquement pour les faits à un moment donné.
-- Votre analyse capture l'essence du contenu et la séquence des informations telles qu'elles apparaissent dans le document.
-
-IMPORTANT : Ne renvoyez que la liste des triplets avec leurs informations de séquence, sans aucun texte explicatif ou commentaire supplémentaire. L'application s'attend à recevoir uniquement les triplets bruts pour pouvoir les traiter correctement.
-
-Contenu à analyser :
-` + content
+	logger.Debug(fmt.Sprintf("Prepared prompt for OpenAI API:\n%s", prompt))
 
 	req := openai.ChatCompletionRequest{
 		Model: c.model,
@@ -62,17 +42,49 @@ Contenu à analyser :
 		MaxTokens: c.contextSize,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, c.timeout)
-	defer cancel()
+	var resp openai.ChatCompletionResponse
+	var err error
 
-	resp, err := c.client.CreateChatCompletion(ctx, req)
+	maxRetries := 5
+	baseDelay := 20 * time.Second
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, c.timeout)
+		defer cancel()
+
+		logger.Info(fmt.Sprintf("Sending request to OpenAI API (Attempt %d of %d)", attempt+1, maxRetries))
+		resp, err = c.client.CreateChatCompletion(ctxWithTimeout, req)
+		if err == nil {
+			break
+		}
+
+		logger.Warning(fmt.Sprintf("Attempt %d failed: %v", attempt+1, err))
+		if attempt < maxRetries-1 {
+			delay := baseDelay + time.Duration(attempt)*20*time.Second
+			logger.Info(fmt.Sprintf("Retrying in %v", delay))
+			time.Sleep(delay)
+		}
+	}
+
 	if err != nil {
-		return "", fmt.Errorf("error calling OpenAI API: %w", err)
+		logger.Error(fmt.Sprintf("All attempts failed. Last error: %v", err))
+		return "", nil, fmt.Errorf("failed to get response from OpenAI API after %d attempts: %w", maxRetries, err)
 	}
 
 	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no content in OpenAI API response")
+		return "", nil, fmt.Errorf("no content in OpenAI API response")
 	}
 
-	return resp.Choices[0].Message.Content, nil
+	responseText := resp.Choices[0].Message.Content
+
+	// Mettre à jour le contexte d'analyse
+	updatedContext, err := UpdateAnalysisContext(responseText, analysisContext)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error updating analysis context: %v", err))
+		return "", nil, fmt.Errorf("error updating analysis context: %w", err)
+	}
+
+	logger.Debug(fmt.Sprintf("OpenAI API response:\n%s", responseText))
+	logger.Info(fmt.Sprintf("Analysis completed successfully (response length: %d characters)", len(responseText)))
+	return responseText, updatedContext, nil
 }

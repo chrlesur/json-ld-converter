@@ -3,27 +3,103 @@
   "@graph": [
     {
       "@context": "https://schema.org",
-      "@type": "Dataset"
+      "@type": "Book"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Dataset"
+      "@type": "CreativeWork"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Dataset"
+      "@type": "CreativeWork"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Dataset"
+      "@type": "CreativeWork"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Dataset"
+      "@type": "Book"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Article"
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Book"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork"
     }
   ]
 }

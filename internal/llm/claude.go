@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/chrlesur/json-ld-converter/internal/logger"
@@ -55,9 +56,13 @@ type claudeResponse struct {
 }
 
 // Analyze implémente la méthode de l'interface LLMClient pour Claude
-func (c *ClaudeClient) Analyze(ctx context.Context, content string) (string, error) {
+func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisContext *AnalysisContext) (string, *AnalysisContext, error) {
 	logger.Debug("Starting analysis with Claude API")
-	prompt := `` + content
+	prompt := BuildPromptWithContext(content, analysisContext)
+
+	logger.Info(fmt.Sprintf("PREVIOUS ENTITIES   : %s", FormatMapToString(analysisContext.PreviousEntities)))
+	logger.Info(fmt.Sprintf("PREVIOUS RELATIONS  : %s", strings.Join(analysisContext.PreviousRelations, ", ")))
+	logger.Info(fmt.Sprintf("CONTEXT SUMMARY     : %s", analysisContext.Summary))
 
 	logger.Debug(fmt.Sprintf("Prepared prompt for Claude API:\n%s", prompt))
 
@@ -72,20 +77,24 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string) (string, err
 	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error marshaling request body: %v", err))
-		return "", fmt.Errorf("error marshaling request body: %w", err)
+		return "", nil, fmt.Errorf("error marshaling request body: %w", err)
 	}
 	logger.Debug(fmt.Sprintf("Request body marshaled successfully (size: %d bytes)", len(jsonData)))
 
 	var resp *http.Response
 	var responseBody []byte
 	maxRetries := 5
-	baseDelay := 20 * time.Second
+	baseTimeout := c.Timeout
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, "POST", ClaudeAPIURL, bytes.NewBuffer(jsonData))
+		currentTimeout := baseTimeout + time.Duration(attempt)*20*time.Second
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, currentTimeout)
+		defer cancel()
+
+		req, err := http.NewRequestWithContext(ctxWithTimeout, "POST", ClaudeAPIURL, bytes.NewBuffer(jsonData))
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error creating request: %v", err))
-			return "", fmt.Errorf("error creating request: %w", err)
+			return "", nil, fmt.Errorf("error creating request: %w", err)
 		}
 		logger.Debug("HTTP request created successfully")
 
@@ -94,7 +103,7 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string) (string, err
 		req.Header.Set("anthropic-version", "2023-06-01")
 		logger.Debug("Request headers set")
 
-		logger.Info(fmt.Sprintf("Sending request to Claude API (Attempt %d of %d)", attempt+1, maxRetries))
+		logger.Info(fmt.Sprintf("Sending request to Claude API (Attempt %d of %d, Timeout: %v)", attempt+1, maxRetries, currentTimeout))
 		resp, err = c.HTTPClient.Do(req)
 		if err == nil {
 			defer resp.Body.Close()
@@ -106,15 +115,15 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string) (string, err
 
 		logger.Warning(fmt.Sprintf("Attempt %d failed: %v", attempt+1, err))
 		if attempt < maxRetries-1 {
-			delay := baseDelay + time.Duration(attempt)*20*time.Second
-			logger.Info(fmt.Sprintf("Retrying in %v", delay))
-			time.Sleep(delay)
+			retryDelay := time.Duration(attempt+1) * 20 * time.Second
+			logger.Info(fmt.Sprintf("Retrying in %v", retryDelay))
+			time.Sleep(retryDelay)
 		}
 	}
 
 	if resp == nil || resp.StatusCode != http.StatusOK {
 		logger.Error(fmt.Sprintf("All attempts failed. Last error: %v", err))
-		return "", fmt.Errorf("failed to get response from Claude API after %d attempts", maxRetries)
+		return "", nil, fmt.Errorf("failed to get response from Claude API after %d attempts", maxRetries)
 	}
 
 	logger.Debug(fmt.Sprintf("Received response from Claude API (status: %d)", resp.StatusCode))
@@ -122,17 +131,27 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string) (string, err
 	var claudeResp claudeResponse
 	if err := json.Unmarshal(responseBody, &claudeResp); err != nil {
 		logger.Error(fmt.Sprintf("Error decoding Claude API response: %v", err))
-		return "", fmt.Errorf("error decoding Claude API response: %w", err)
+		return "", nil, fmt.Errorf("error decoding Claude API response: %w", err)
 	}
 	logger.Debug("Claude API response decoded successfully")
 
 	if len(claudeResp.Content) == 0 {
 		logger.Error("No content in Claude API response")
-		return "", fmt.Errorf("no content in Claude API response")
+		return "", nil, fmt.Errorf("no content in Claude API response")
 	}
 
 	responseText := claudeResp.Content[0].Text
+
+	logger.Info(fmt.Sprintf("API Response : %s", responseText))
+
+	// Mettre à jour le contexte d'analyse
+	updatedContext, err := UpdateAnalysisContext(responseText, analysisContext)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error updating analysis context: %v", err))
+		return "", nil, fmt.Errorf("error updating analysis context: %w", err)
+	}
+
 	logger.Debug(fmt.Sprintf("Claude API response:\n%s", responseText))
 	logger.Info(fmt.Sprintf("Analysis completed successfully (response length: %d characters)", len(responseText)))
-	return responseText, nil
+	return responseText, updatedContext, nil
 }

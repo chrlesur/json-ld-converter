@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/chrlesur/json-ld-converter/internal/logger"
 )
 
-// OllamaClient implémente l'interface LLMClient pour les modèles Ollama
 type OllamaClient struct {
 	host        string
 	port        string
@@ -19,7 +21,6 @@ type OllamaClient struct {
 	httpClient  *http.Client
 }
 
-// NewOllamaClient crée et retourne une nouvelle instance de OllamaClient
 func NewOllamaClient(host, port, model string, contextSize int, timeout time.Duration) *OllamaClient {
 	return &OllamaClient{
 		host:        host,
@@ -44,30 +45,11 @@ type ollamaResponse struct {
 	Response string `json:"response"`
 }
 
-// Translate implémente la méthode de l'interface LLMClient pour Ollama
-func (c *OllamaClient) Analyze(ctx context.Context, content string) (string, error) {
-	prompt := `Analysez le contenu fourni (représentant une partie d'un document plus large) et identifiez les principaux triplets entité-relation-attribut présents dans le texte. Concentrez-vous sur les concepts et relations importants au niveau du paragraphe, en gardant la chronologie des événements.
+func (c *OllamaClient) Analyze(ctx context.Context, content string, analysisContext *AnalysisContext) (string, *AnalysisContext, error) {
+	logger.Debug("Starting analysis with Ollama API")
+	prompt := BuildPromptWithContext(content, analysisContext)
 
-Instructions :
-1. Analysez chaque paragraphe du chunk en détail.
-2. Identifiez les triplets les plus pertinents et significatifs, en vous concentrant sur les idées principales et les informations clés.
-3. Pour chaque triplet qui représente un fait à un moment donné, indiquez un lien vers l'événement précédent et suivant s'ils existent dans le même chunk.
-4. Présentez les résultats sous forme de liste de triplets, un par ligne, séparés par des tabulations.
-
-Format de réponse attendu :
-"Entité principale"	"Relation importante"	"Attribut ou entité liée significative"	"Événement précédent (si applicable)"	"Événement suivant (si applicable)"
-...
-
-Assurez-vous que :
-- Chaque triplet représente une information importante extraite du texte fourni.
-- Les concepts, relations et attributs identifiés sont pertinents pour la compréhension globale du document.
-- Les liens vers les événements précédents et suivants sont inclus uniquement pour les faits à un moment donné.
-- Votre analyse capture l'essence du contenu et la séquence des informations telles qu'elles apparaissent dans le document.
-
-IMPORTANT : Ne renvoyez que la liste des triplets avec leurs informations de séquence, sans aucun texte explicatif ou commentaire supplémentaire. L'application s'attend à recevoir uniquement les triplets bruts pour pouvoir les traiter correctement.
-
-Contenu à analyser :
-` + content
+	logger.Debug(fmt.Sprintf("Prepared prompt for Ollama API:\n%s", prompt))
 
 	reqBody := ollamaRequest{
 		Model:  c.model,
@@ -78,31 +60,60 @@ Contenu à analyser :
 
 	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("error marshaling request body: %w", err)
+		return "", nil, fmt.Errorf("error marshaling request body: %w", err)
 	}
 
 	url := fmt.Sprintf("http://%s:%s/api/generate", c.host, c.port)
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", fmt.Errorf("error creating request: %w", err)
+
+	var resp *http.Response
+	var responseBody []byte
+	maxRetries := 5
+	baseDelay := 20 * time.Second
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
+		if err != nil {
+			return "", nil, fmt.Errorf("error creating request: %w", err)
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		logger.Info(fmt.Sprintf("Sending request to Ollama API (Attempt %d of %d)", attempt+1, maxRetries))
+		resp, err = c.httpClient.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			responseBody, err = ioutil.ReadAll(resp.Body)
+			if err == nil && resp.StatusCode == http.StatusOK {
+				break
+			}
+		}
+
+		logger.Warning(fmt.Sprintf("Attempt %d failed: %v", attempt+1, err))
+		if attempt < maxRetries-1 {
+			delay := baseDelay + time.Duration(attempt)*20*time.Second
+			logger.Info(fmt.Sprintf("Retrying in %v", delay))
+			time.Sleep(delay)
+		}
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("error sending request to Ollama API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Ollama API returned non-OK status: %d", resp.StatusCode)
+	if resp == nil || resp.StatusCode != http.StatusOK {
+		logger.Error(fmt.Sprintf("All attempts failed. Last error: %v", err))
+		return "", nil, fmt.Errorf("failed to get response from Ollama API after %d attempts", maxRetries)
 	}
 
 	var ollamaResp ollamaResponse
-	if err := json.NewDecoder(resp.Body).Decode(&ollamaResp); err != nil {
-		return "", fmt.Errorf("error decoding Ollama API response: %w", err)
+	if err := json.Unmarshal(responseBody, &ollamaResp); err != nil {
+		return "", nil, fmt.Errorf("error decoding Ollama API response: %w", err)
 	}
 
-	return ollamaResp.Response, nil
+	// Mettre à jour le contexte d'analyse
+	updatedContext, err := UpdateAnalysisContext(ollamaResp.Response, analysisContext)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error updating analysis context: %v", err))
+		return "", nil, fmt.Errorf("error updating analysis context: %w", err)
+	}
+
+	logger.Debug(fmt.Sprintf("Ollama API response:\n%s", ollamaResp.Response))
+	logger.Info(fmt.Sprintf("Analysis completed successfully (response length: %d characters)", len(ollamaResp.Response)))
+	return ollamaResp.Response, updatedContext, nil
 }
