@@ -3,23 +3,23 @@
   "@graph": [
     {
       "@context": "https://schema.org",
-      "@type": "Article"
+      "@type": "Dataset"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Article"
+      "@type": "Dataset"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Thing"
+      "@type": "Dataset"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Thing"
+      "@type": "Dataset"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Thing"
+      "@type": "Dataset"
     },
     {
       "@context": "https://schema.org",

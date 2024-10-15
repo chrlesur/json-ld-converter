@@ -110,7 +110,26 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 
 func (c *Converter) enrichContentWithLLM(ctx context.Context, content string) (string, error) {
 	logger.Debug("Enriching content with LLM")
-	prompt := fmt.Sprintf("Analyzez et enrichissez sémantiquement le contenu suivant : %s", content)
+	prompt := fmt.Sprintf("Analysez en profondeur le document suivant et extrayez-en les principales ontologies et relations sémantiques. Votre analyse doit inclure :"+
+		"Les concepts clés et entités principales du document, classés par catégories (personnes, organisations, lieux, événements, concepts abstraits, etc.)"+
+		"Les relations hiérarchiques entre ces concepts (relations de type est-un, partie-de)"+
+		"Les propriétés et attributs associés à chaque concept"+
+		"Les relations non hiérarchiques entre les concepts (actions, associations)"+
+		"Les classes et sous-classes identifiées"+
+		"Les instances spécifiques pour chaque classe"+
+		"Les règles ou contraintes applicables aux concepts et relations"+
+		"Structurez votre analyse au format Wikibase, en utilisant :"+
+		"Des items (Q) pour les entités et concepts"+
+		"Des propriétés (P) pour les relations et attributs"+
+		"Des déclarations pour lier les items et propriétés"+
+		"Incluez également :"+
+		"Des labels et descriptions pour chaque item et propriété"+
+		"Des alias pertinents"+
+		"Des identifiants externes si applicable (ex: VIAF, GeoNames)"+
+		"Des qualificateurs pour ajouter du contexte aux déclarations"+
+		"Des références pour sourcer les informations"+
+		"Assurez-vous que votre analyse capture la sémantique et le contexte du document de manière complète et précise, tout en restant compatible avec les standards du modèle de données Wikibase."+
+		"%s", content)
 	enrichedContent, err := c.llmClient.Analyze(ctx, prompt)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error calling LLM for content enrichment: %v", err))
