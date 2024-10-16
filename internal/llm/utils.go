@@ -24,6 +24,9 @@ func BuildPromptWithContext(content string, context *AnalysisContext) string {
 
 	Résumé :
 	Un bref résumé du contenu
+
+	N'utilisez pas de caractère # ou * et ne produisez que du texte simple
+
 	Contexte précédent :
     Entités : %s
     Relations : %s

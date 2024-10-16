@@ -1,0 +1,1026 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Les premiers chapitres de l'Évangile selon Saint Jean présentent Jésus comme le Verbe incarné et relatent le début de son ministère public, incluant des miracles, des enseignements et des rencontres significatives qui révèlent son identité divine et sa mission de salut.",
+      "citation": [
+        {
+          "author": "Saint Jean",
+          "text": "Au commencement était le Verbe, et le Verbe était avec Dieu, et le Verbe était Dieu."
+        },
+        {
+          "author": "Jean-Baptiste",
+          "text": "Voici l'Agneau de Dieu, qui ôte le péché du monde."
+        }
+      ],
+      "description": "Ce texte présente le début de l'Évangile selon Saint Jean, couvrant les premiers chapitres du livre. Il commence par un prologue théologique profond sur l'incarnation du Verbe divin en la personne de Jésus-Christ. Le récit se poursuit avec les débuts du ministère public de Jésus, incluant le témoignage de Jean-Baptiste qui le désigne comme l'Agneau de Dieu, l'appel des premiers disciples, et le premier miracle à Cana. Le texte relate ensuite des événements et dialogues importants : la purification du Temple, l'entretien nocturne avec Nicodème sur la nouvelle naissance spirituelle, et la rencontre avec la femme samaritaine au puits. Tout au long du texte, l'accent est mis sur l'identité divine de Jésus en tant que Fils de Dieu et sur sa mission de salut pour le monde entier. Les thèmes de la révélation, de la foi, de la nouvelle vie spirituelle et de l'adoration en esprit et en vérité sont centraux dans ce passage.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jean-Baptiste présente Jésus comme l'Agneau de Dieu",
+          "name": "Témoignage de Jean-Baptiste",
+          "participants": [
+            "Jean-Baptiste",
+            "Jésus"
+          ],
+          "startDate": "Début du ministère de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus appelle ses premiers disciples à le suivre",
+          "name": "Appel des premiers disciples",
+          "participants": [
+            "Jésus",
+            "Disciples"
+          ],
+          "startDate": "Début du ministère de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Premier miracle de Jésus, transformation de l'eau en vin",
+          "name": "Miracle de Cana",
+          "participants": [
+            "Jésus",
+            "Disciples"
+          ],
+          "startDate": "Début du ministère de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus chasse les marchands du Temple",
+          "name": "Purification du Temple",
+          "participants": [
+            "Jésus",
+            "Marchands"
+          ],
+          "startDate": "Début du ministère de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Entretien entre Jésus et Nicodème sur la nouvelle naissance",
+          "name": "Dialogue avec Nicodème",
+          "participants": [
+            "Jésus",
+            "Nicodème"
+          ],
+          "startDate": "Pendant le ministère de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Dialogue entre Jésus et une femme samaritaine",
+          "name": "Rencontre avec la Samaritaine",
+          "participants": [
+            "Jésus",
+            "La femme samaritaine"
+          ],
+          "startDate": "Pendant le ministère de Jésus"
+        }
+      ],
+      "genre": "Texte religieux, Évangile",
+      "isPartOf": {
+        "name": "Nouveau Testament",
+        "type": "Collection de textes sacrés"
+      },
+      "keywords": "Jésus, Verbe incarné, Jean-Baptiste, disciples, miracle, Cana, Temple, Nicodème, nouvelle naissance, Samaritaine, eau vive, adoration, Fils de Dieu, salut, foi, révélation, Esprit, vérité",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Lieu où Jésus accomplit son premier miracle",
+          "name": "Cana"
+        },
+        {
+          "@type": "Place",
+          "description": "Lieu purifié par Jésus",
+          "name": "Temple"
+        },
+        {
+          "@type": "Place",
+          "description": "Région où Jésus rencontre la femme samaritaine",
+          "name": "Samarie"
+        }
+      ],
+      "mainEntity": {
+        "description": "Le Verbe incarné, Fils de Dieu, dont le ministère et les enseignements sont au centre du récit",
+        "name": "Jésus-Christ"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Le Verbe incarné, le Fils de Dieu, protagoniste principal de l'Évangile",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Témoin qui présente Jésus comme l'Agneau de Dieu",
+          "name": "Jean-Baptiste"
+        },
+        {
+          "@type": "Person",
+          "description": "Premiers suiveurs de Jésus, appelés au début de son ministère",
+          "name": "Disciples de Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Groupes religieux interagissant avec Jésus",
+          "name": "Juifs/Pharisiens"
+        },
+        {
+          "@type": "Person",
+          "description": "Personnage ayant un dialogue avec Jésus sur la nouvelle naissance",
+          "name": "Nicodème"
+        },
+        {
+          "@type": "Person",
+          "description": "Femme rencontrée par Jésus, avec qui il a un dialogue important",
+          "name": "La femme samaritaine"
+        },
+        {
+          "@type": "Person",
+          "description": "Figure divine mentionnée en relation avec Jésus",
+          "name": "Dieu le Père"
+        }
+      ],
+      "timeline": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Le Verbe se fait chair en la personne de Jésus",
+              "name": "Incarnation du Verbe",
+              "startDate": "Commencement"
+            },
+            "position": 1
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jean-Baptiste présente Jésus comme l'Agneau de Dieu",
+              "name": "Témoignage de Jean-Baptiste",
+              "startDate": "Début du ministère"
+            },
+            "position": 2
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus appelle ses premiers disciples",
+              "name": "Appel des disciples",
+              "startDate": "Début du ministère"
+            },
+            "position": 3
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Premier miracle de Jésus",
+              "name": "Miracle de Cana",
+              "startDate": "Début du ministère"
+            },
+            "position": 4
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus chasse les marchands du Temple",
+              "name": "Purification du Temple",
+              "startDate": "Période du ministère"
+            },
+            "position": 5
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Enseignement sur la nouvelle naissance",
+              "name": "Dialogue avec Nicodème",
+              "startDate": "Période du ministère"
+            },
+            "position": 6
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Dialogue sur l'eau vive et la vraie adoration",
+              "name": "Rencontre avec la Samaritaine",
+              "startDate": "Période du ministère"
+            },
+            "position": 7
+          }
+        ]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Ce texte présente une série d'événements et d'enseignements du ministère de Jésus, mettant en lumière son identité divine, ses miracles, ses enseignements profonds, et l'opposition croissante qu'il rencontre. Il souligne la relation unique de Jésus avec Dieu le Père et sa mission de salut, tout en montrant les réactions variées de ses disciples et de la foule.",
+      "description": "Ce texte relate une partie du ministère public de Jésus en Galilée et à Jérusalem. Il met en lumière l'identité divine de Jésus, ses œuvres miraculeuses (guérisons, multiplication des pains), et ses enseignements profonds, notamment sur sa relation unique avec Dieu le Père. Le texte souligne également l'opposition grandissante des autorités juives face aux actions et déclarations de Jésus, ainsi que l'incompréhension de certains disciples confrontés à ses paroles difficiles. Les événements décrits incluent des guérisons controversées, des discours théologiques importants, et des débats sur l'identité et l'autorité de Jésus. Le contexte historique est celui du judaïsme du premier siècle, avec des références à Moïse et aux traditions juives. Les thèmes principaux incluent la divinité de Jésus, sa mission de salut, le conflit avec les autorités religieuses, et la foi des disciples.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus guérit à distance le fils d'un fonctionnaire",
+          "name": "Guérison du fils d'un fonctionnaire royal",
+          "participants": [
+            "Jésus",
+            "Fonctionnaire royal",
+            "Fils du fonctionnaire"
+          ],
+          "startDate": "Non spécifié"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus guérit un infirme le jour du sabbat, provoquant l'hostilité des Juifs",
+          "name": "Guérison d'un infirme",
+          "participants": [
+            "Jésus",
+            "Infirme",
+            "Juifs"
+          ],
+          "startDate": "Jour du sabbat"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus nourrit miraculeusement une foule",
+          "name": "Multiplication des pains",
+          "participants": [
+            "Jésus",
+            "La foule",
+            "Disciples"
+          ],
+          "startDate": "Non spécifié"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme le pain de vie descendu du ciel, suscitant l'incompréhension",
+          "name": "Discours sur le pain de vie",
+          "participants": [
+            "Jésus",
+            "Disciples",
+            "La foule"
+          ],
+          "startDate": "Non spécifié"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus monte secrètement à Jérusalem pour cette fête",
+          "name": "Fête des Tentes",
+          "participants": [
+            "Jésus"
+          ],
+          "startDate": "Non spécifié"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus enseigne au Temple, provoquant des débats sur son identité",
+          "name": "Enseignements au Temple",
+          "participants": [
+            "Jésus",
+            "La foule",
+            "Autorités juives"
+          ],
+          "startDate": "Non spécifié"
+        }
+      ],
+      "genre": "Récit religieux",
+      "isPartOf": {
+        "name": "Évangile",
+        "type": "Texte biblique"
+      },
+      "keywords": "Jésus, miracles, guérison, enseignement, divinité, opposition, disciples, Juifs, Pharisiens, Galilée, Jérusalem, Temple, pain de vie, Dieu le Père, Moïse, sabbat, foi, incompréhension, fête des Tentes, identité divine, mission de salut",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Région où Jésus exerce une partie de son ministère",
+          "name": "Galilée"
+        },
+        {
+          "@type": "Place",
+          "description": "Ville où Jésus se rend pour la fête des Tentes et enseigne au Temple",
+          "name": "Jérusalem"
+        },
+        {
+          "@type": "Place",
+          "description": "Lieu où Jésus enseigne à Jérusalem",
+          "name": "Temple"
+        }
+      ],
+      "mainEntity": {
+        "description": "Figure centrale du texte, présentée comme ayant une identité divine, accomplissant des miracles et enseignant avec autorité",
+        "name": "Jésus"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Figure centrale du texte, accomplit des miracles, enseigne et révèle son identité divine",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Suivent Jésus, certains l'abandonnent suite à ses enseignements difficiles",
+          "name": "Disciples de Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Autorités religieuses en opposition croissante avec Jésus",
+          "name": "Juifs/Pharisiens"
+        },
+        {
+          "@type": "Person",
+          "description": "Témoins des miracles et enseignements de Jésus",
+          "name": "La foule"
+        },
+        {
+          "@type": "Person",
+          "description": "Mentionné par Jésus comme étant en relation étroite avec lui",
+          "name": "Dieu le Père"
+        },
+        {
+          "@type": "Person",
+          "description": "Figure de l'Ancien Testament mentionnée en référence",
+          "name": "Moïse"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple qui fait une confession de foi en Jésus",
+          "name": "Pierre"
+        }
+      ],
+      "timeline": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus accomplit des miracles et enseigne en Galilée",
+              "name": "Ministère en Galilée",
+              "startDate": "Non spécifié"
+            },
+            "position": 1
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Les autorités juives s'opposent de plus en plus à Jésus",
+              "name": "Opposition croissante",
+              "startDate": "Non spécifié"
+            },
+            "position": 2
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus se rend à Jérusalem et enseigne au Temple",
+              "name": "Fête des Tentes",
+              "startDate": "Non spécifié"
+            },
+            "position": 3
+          }
+        ]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Ce texte relate une série d'enseignements, de débats et de miracles de Jésus à Jérusalem, mettant en évidence son affirmation d'autorité divine, sa relation avec Dieu le Père, et l'opposition croissante des autorités juives. Il inclut des épisodes clés comme la confrontation avec la femme adultère, des discours sur son identité divine, et la guérison d'un aveugle-né.",
+      "description": "Ce texte relate une partie du ministère de Jésus à Jérusalem, principalement dans le Temple. Il décrit une série d'enseignements, de débats et de miracles qui mettent en lumière l'affirmation par Jésus de son autorité divine et de sa relation unique avec Dieu le Père. Le texte souligne également l'opposition croissante des autorités juives envers Jésus. Les événements majeurs incluent des discours où Jésus se présente comme la lumière du monde et le bon pasteur, la confrontation avec la femme adultère, un débat sur la filiation spirituelle d'Abraham, et la guérison miraculeuse d'un aveugle-né. Ces épisodes servent à illustrer la nature divine de Jésus et sa mission, tout en montrant le conflit grandissant avec les autorités religieuses de l'époque.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus enseigne et débat sur son identité et son origine divine",
+          "name": "Enseignements de Jésus dans le Temple",
+          "participants": [
+            "Jésus",
+            "Les Juifs/Pharisiens",
+            "La foule"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Épisode où Jésus confronte les accusateurs d'une femme adultère",
+          "name": "Confrontation avec la femme adultère",
+          "participants": [
+            "Jésus",
+            "La femme adultère",
+            "Les Juifs/Pharisiens"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme la lumière du monde",
+          "name": "Discours sur la lumière du monde",
+          "participants": [
+            "Jésus",
+            "La foule"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme le bon pasteur",
+          "name": "Discours sur le bon pasteur",
+          "participants": [
+            "Jésus",
+            "La foule"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Conflit entre Jésus et les Juifs sur la filiation spirituelle d'Abraham",
+          "name": "Débat sur la filiation d'Abraham",
+          "participants": [
+            "Jésus",
+            "Les Juifs/Pharisiens"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Miracle de guérison d'un homme aveugle de naissance par Jésus",
+          "name": "Guérison de l'aveugle-né",
+          "participants": [
+            "Jésus",
+            "L'aveugle-né",
+            "Les Pharisiens"
+          ]
+        }
+      ],
+      "genre": "Récit biblique",
+      "isPartOf": {
+        "name": "Évangile",
+        "type": "Texte religieux"
+      },
+      "keywords": "Jésus, Temple, Jérusalem, Pharisiens, enseignement, débat, miracle, autorité divine, lumière du monde, bon pasteur, femme adultère, Abraham, aveugle-né, opposition, guérison, filiation divine",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Ville où se déroulent les événements",
+          "name": "Jérusalem"
+        },
+        {
+          "@type": "Place",
+          "description": "Lieu principal des enseignements et débats de Jésus",
+          "name": "Temple"
+        }
+      ],
+      "mainEntity": {
+        "description": "Figure centrale du texte, enseignant divin réalisant des miracles et affirmant son autorité divine à Jérusalem",
+        "name": "Jésus"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Figure centrale du texte, enseignant dans le Temple, affirmant son autorité divine et réalisant des miracles",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Autorités religieuses en opposition croissante avec Jésus",
+          "name": "Les Juifs/Pharisiens"
+        },
+        {
+          "@type": "Person",
+          "description": "Groupe de personnes assistant aux enseignements et débats de Jésus",
+          "name": "La foule"
+        },
+        {
+          "@type": "Person",
+          "description": "Groupe de suiveurs de Jésus",
+          "name": "Les disciples de Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Personnage mentionné dans le texte",
+          "name": "Nicodème"
+        },
+        {
+          "@type": "Person",
+          "description": "Femme impliquée dans un épisode de confrontation avec Jésus",
+          "name": "La femme adultère"
+        },
+        {
+          "@type": "Person",
+          "description": "Figure patriarcale mentionnée dans les débats sur la filiation",
+          "name": "Abraham"
+        },
+        {
+          "@type": "Person",
+          "description": "Figure biblique mentionnée dans le texte",
+          "name": "Moïse"
+        },
+        {
+          "@type": "Person",
+          "description": "Entité divine avec laquelle Jésus affirme avoir une relation unique",
+          "name": "Dieu le Père"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Ce texte décrit les derniers événements du ministère public de Jésus, incluant des controverses théologiques, la résurrection de Lazare, l'entrée à Jérusalem et le dernier repas. Il met en lumière l'identité divine de Jésus, sa mission salvifique et l'opposition croissante menant à sa Passion.",
+      "citation": [
+        {
+          "author": "Jésus",
+          "text": "Je suis le bon pasteur. Le bon pasteur donne sa vie pour ses brebis."
+        },
+        {
+          "author": "Jésus",
+          "text": "Le Père et moi, nous sommes un."
+        }
+      ],
+      "description": "Ce texte relate les derniers épisodes du ministère public de Jésus avant sa Passion, s'inscrivant dans le contexte historique et religieux du judaïsme du 1er siècle. Il met en lumière l'identité divine de Jésus, sa mission salvifique, et l'opposition croissante des autorités juives. Les événements majeurs incluent des controverses théologiques, la résurrection miraculeuse de Lazare, l'entrée messianique à Jérusalem, et le dernier repas avec le lavement des pieds. Ces épisodes illustrent la tension montante entre Jésus et les autorités, préparant le terrain pour sa condamnation et sa crucifixion. Le texte souligne également les relations entre Jésus et ses disciples, ainsi que son lien avec des personnages comme Lazare, Marthe et Marie.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus ressuscite miraculeusement Lazare, provoquant la décision des autorités de le faire mourir",
+          "name": "Résurrection de Lazare",
+          "participants": [
+            "Jésus",
+            "Lazare",
+            "Marthe",
+            "Marie"
+          ],
+          "startDate": "Peu avant la Passion"
+        },
+        {
+          "@type": "Event",
+          "description": "Marie oint Jésus à Béthanie",
+          "name": "Onction à Béthanie",
+          "participants": [
+            "Jésus",
+            "Marie"
+          ],
+          "startDate": "Peu avant la Passion"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus entre à Jérusalem de manière triomphale",
+          "name": "Entrée triomphale à Jérusalem",
+          "participants": [
+            "Jésus",
+            "Disciples",
+            "Foule"
+          ],
+          "startDate": "Peu avant la Passion"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus lave les pieds de ses disciples lors du dernier repas",
+          "name": "Lavement des pieds",
+          "participants": [
+            "Jésus",
+            "Disciples"
+          ],
+          "startDate": "Veille de la Passion"
+        }
+      ],
+      "genre": "Texte religieux narratif",
+      "isPartOf": {
+        "name": "Évangile",
+        "type": "Récit biblique"
+      },
+      "keywords": "Jésus, disciples, Juifs, Pharisiens, Lazare, Marthe, Marie, Caïphe, Judas Iscariote, résurrection, onction, Béthanie, Jérusalem, lavement des pieds, bon pasteur, divinité, conflit, Passion, miracles, autorités religieuses, messie, glorification, salut",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Ville où Jésus fait son entrée triomphale",
+          "name": "Jérusalem"
+        },
+        {
+          "@type": "Place",
+          "description": "Lieu où Marie oint Jésus",
+          "name": "Béthanie"
+        }
+      ],
+      "mainEntity": {
+        "description": "Figure centrale du récit, présenté comme le Fils de Dieu accomplissant sa mission salvifique à travers enseignements, miracles et préparation à sa Passion",
+        "name": "Jésus"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Figure centrale du texte, présenté comme le bon pasteur, celui qui ressuscite Lazare et affirme son unité avec Dieu le Père",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Groupe de suiveurs de Jésus, dont les pieds sont lavés par lui lors du dernier repas",
+          "name": "Disciples de Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Autorités religieuses en conflit avec Jésus, cherchant à le lapider et décidant de le faire mourir",
+          "name": "Juifs/Pharisiens"
+        },
+        {
+          "@type": "Person",
+          "description": "Homme ressuscité miraculeusement par Jésus",
+          "name": "Lazare"
+        },
+        {
+          "@type": "Person",
+          "description": "Sœur de Lazare",
+          "name": "Marthe"
+        },
+        {
+          "@type": "Person",
+          "description": "Sœur de Lazare, ayant oint Jésus à Béthanie",
+          "name": "Marie"
+        },
+        {
+          "@type": "Person",
+          "description": "Grand prêtre impliqué dans la décision de faire mourir Jésus",
+          "name": "Caïphe"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple de Jésus mentionné dans le contexte",
+          "name": "Judas Iscariote"
+        },
+        {
+          "@type": "Person",
+          "description": "Entité divine avec laquelle Jésus affirme son unité",
+          "name": "Dieu le Père"
+        }
+      ],
+      "timeline": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus affirme sa divinité et son unité avec le Père",
+              "name": "Controverses avec les Juifs",
+              "startDate": "Durant le ministère public de Jésus"
+            },
+            "position": 1
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Signe éclatant provoquant la décision de faire mourir Jésus",
+              "name": "Résurrection de Lazare",
+              "startDate": "Peu avant la Passion"
+            },
+            "position": 2
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Événements marquant le début de la semaine sainte",
+              "name": "Onction à Béthanie et entrée à Jérusalem",
+              "startDate": "Jours précédant la Passion"
+            },
+            "position": 3
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Derniers enseignements de Jésus à ses disciples",
+              "name": "Dernier repas et lavement des pieds",
+              "startDate": "Veille de la Passion"
+            },
+            "position": 4
+          }
+        ]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Ce texte présente les derniers enseignements de Jésus à ses disciples avant sa Passion, incluant le lavement des pieds, l'annonce de la trahison, des discours d'adieu, la promesse de l'Esprit Saint, et une prière pour ses disciples et l'Église future. Il met l'accent sur l'amour, le service, l'unité avec Dieu et la préparation des disciples pour leur mission future face aux défis à venir.",
+      "description": "Ce texte relate les derniers enseignements et la prière de Jésus avant sa Passion, tels que rapportés dans l'Évangile selon Jean (chapitres 13 à 17). Il commence par le lavement des pieds, un acte d'humilité et de service par lequel Jésus donne l'exemple à ses disciples. Suit l'annonce de la trahison de Judas, préparant le terrain pour les événements à venir. Les discours d'adieu de Jésus constituent le cœur du texte, où il prépare ses disciples à son départ imminent. Il promet l'envoi de l'Esprit Saint (le Paraclet) qui les guidera après son départ. L'allégorie de la vigne et des sarments illustre la relation intime entre Jésus et ses disciples, soulignant l'importance de rester unis à lui. Jésus annonce également les persécutions que ses disciples devront endurer, tout en les assurant de la victoire finale. Le texte culmine avec la prière sacerdotale de Jésus, où il intercède auprès du Père pour ses disciples et l'Église future. Tout au long du texte, l'accent est mis sur l'amour, l'unité avec Dieu, la mission confiée aux disciples, et la promesse de la présence continue de Dieu à travers l'Esprit Saint.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus lave les pieds de ses disciples comme exemple d'humilité et de service",
+          "name": "Lavement des pieds",
+          "participants": [
+            "Jésus",
+            "Les disciples"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus prédit la trahison de Judas Iscariote",
+          "name": "Annonce de la trahison",
+          "participants": [
+            "Jésus",
+            "Judas Iscariote",
+            "Les disciples"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus fait ses adieux et donne de nouveaux commandements à ses disciples",
+          "name": "Discours d'adieu",
+          "participants": [
+            "Jésus",
+            "Les disciples"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus promet l'envoi de l'Esprit Saint pour guider les disciples",
+          "name": "Promesse du Paraclet",
+          "participants": [
+            "Jésus",
+            "Les disciples",
+            "L'Esprit Saint/Paraclet"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme la vraie vigne et ses disciples comme les sarments",
+          "name": "Allégorie de la vigne",
+          "participants": [
+            "Jésus",
+            "Les disciples"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus prévient ses disciples des persécutions à venir",
+          "name": "Annonce des persécutions",
+          "participants": [
+            "Jésus",
+            "Les disciples"
+          ]
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus prie le Père pour ses disciples et tous les futurs croyants",
+          "name": "Prière sacerdotale",
+          "participants": [
+            "Jésus",
+            "Le Père",
+            "Les disciples"
+          ]
+        }
+      ],
+      "genre": "Texte religieux",
+      "isPartOf": {
+        "name": "Évangile selon Jean",
+        "type": "Livre biblique"
+      },
+      "keywords": "Jésus, disciples, Judas, trahison, lavement des pieds, humilité, service, adieux, Paraclet, Esprit Saint, vigne, sarments, persécutions, prière sacerdotale, amour, unité, mission, Passion",
+      "mainEntity": {
+        "description": "Les enseignements finaux et la prière de Jésus avant sa Passion, incluant des leçons sur l'amour, le service, l'unité avec Dieu, et la promesse de l'Esprit Saint",
+        "name": "Derniers enseignements de Jésus"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Figure centrale du texte, lave les pieds des disciples, fait ses adieux, donne des enseignements et prie pour ses disciples",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Followers de Jésus qui reçoivent ses enseignements et sont préparés pour sa Passion",
+          "name": "Les disciples"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple qui trahira Jésus, comme annoncé dans le texte",
+          "name": "Judas Iscariote"
+        },
+        {
+          "@type": "Person",
+          "description": "Dieu le Père, à qui Jésus adresse sa prière",
+          "name": "Le Père"
+        },
+        {
+          "@type": "Person",
+          "description": "Entité divine promise par Jésus pour guider les disciples après son départ",
+          "name": "L'Esprit Saint/Paraclet"
+        },
+        {
+          "@type": "Person",
+          "description": "Entité représentant ceux qui s'opposent aux disciples et à Jésus",
+          "name": "Le monde"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "abstract": "Récit de la Passion, de la mort et de la résurrection de Jésus selon l'Évangile de Jean, incluant son procès, sa crucifixion, la découverte du tombeau vide et ses apparitions post-résurrection aux disciples.",
+      "citation": [
+        {
+          "author": "Jésus",
+          "text": "Tout est accompli"
+        },
+        {
+          "author": "Jésus",
+          "text": "Simon, fils de Jean, m'aimes-tu ?"
+        }
+      ],
+      "description": "Ce texte, tiré de l'Évangile de Jean, relate les derniers jours de Jésus, sa Passion, sa mort et sa résurrection. Il commence par l'arrestation de Jésus et son procès devant Pilate, où sa royauté est mise en question. Malgré les tentatives de Pilate pour le relâcher, Jésus est condamné à la crucifixion sous la pression des autorités juives. La crucifixion est décrite, mettant l'accent sur l'accomplissement des Écritures. Après sa mort, Jésus est mis au tombeau. Le troisième jour, Marie de Magdala découvre le tombeau vide, ce qui déclenche une série d'apparitions de Jésus ressuscité à ses disciples. Ces apparitions visent à confirmer sa résurrection et à renforcer la foi de ses suivants. Le récit culmine avec une apparition au bord du lac de Tibériade, où Jésus confie une mission particulière à Pierre, soulignant l'importance de l'amour et du service dans la mission apostolique. Tout au long du texte, l'accent est mis sur la divinité de Jésus, l'accomplissement des prophéties, et l'importance du témoignage des disciples concernant sa résurrection.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus est arrêté et amené devant Pilate",
+          "name": "Arrestation de Jésus",
+          "participants": [
+            "Jésus",
+            "Soldats",
+            "Disciples"
+          ],
+          "startDate": "Environ 30-33 après J.-C."
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus est jugé par Pilate sous la pression des Juifs",
+          "name": "Procès de Jésus",
+          "participants": [
+            "Jésus",
+            "Pilate",
+            "Les Juifs"
+          ],
+          "startDate": "Environ 30-33 après J.-C."
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus est crucifié par les soldats romains",
+          "name": "Crucifixion de Jésus",
+          "participants": [
+            "Jésus",
+            "Soldats romains",
+            "Marie",
+            "Disciples"
+          ],
+          "startDate": "Environ 30-33 après J.-C."
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus ressuscite et apparaît à ses disciples",
+          "name": "Résurrection de Jésus",
+          "participants": [
+            "Jésus",
+            "Marie de Magdala",
+            "Disciples"
+          ],
+          "startDate": "Environ 30-33 après J.-C."
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus apparaît aux disciples et confie une mission à Pierre",
+          "name": "Apparition au lac de Tibériade",
+          "participants": [
+            "Jésus",
+            "Pierre",
+            "Disciples"
+          ],
+          "startDate": "Peu après la résurrection"
+        }
+      ],
+      "genre": "Texte religieux, récit évangélique",
+      "isPartOf": {
+        "name": "Évangile selon Jean",
+        "type": "Livre biblique"
+      },
+      "keywords": "Jésus, crucifixion, résurrection, disciples, Pilate, Marie de Magdala, Pierre, tombeau vide, apparitions, mission, Évangile, Jean, Passion, foi, témoignage, accomplissement des Écritures, royauté divine",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Lieu où Jésus est enterré et d'où il ressuscite",
+          "name": "Tombeau de Jésus"
+        },
+        {
+          "@type": "Place",
+          "description": "Lieu de l'apparition finale de Jésus aux disciples",
+          "name": "Lac de Tibériade"
+        }
+      ],
+      "mainEntity": {
+        "description": "Figure centrale du christianisme, subit la Passion, meurt sur la croix et ressuscite selon le récit de l'Évangile de Jean",
+        "name": "Jésus"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Protagoniste principal, subit la Passion, la crucifixion et ressuscite",
+          "name": "Jésus"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple de Jésus, reçoit une mission spéciale après la résurrection",
+          "name": "Pierre"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple de Jésus, mentionné dans le contexte des apparitions post-résurrection",
+          "name": "Thomas"
+        },
+        {
+          "@type": "Person",
+          "description": "Disciple de Jésus, témoin des événements",
+          "name": "Jean"
+        },
+        {
+          "@type": "Person",
+          "description": "Gouverneur romain qui préside le procès de Jésus",
+          "name": "Pilate"
+        },
+        {
+          "@type": "Person",
+          "description": "Mère de Jésus, présente lors de la crucifixion",
+          "name": "Marie"
+        },
+        {
+          "@type": "Person",
+          "description": "Découvre le tombeau vide et est la première à voir Jésus ressuscité",
+          "name": "Marie de Magdala"
+        },
+        {
+          "@type": "Person",
+          "description": "Exécutent la crucifixion de Jésus",
+          "name": "Soldats romains"
+        },
+        {
+          "@type": "Person",
+          "description": "Accusateurs de Jésus devant Pilate",
+          "name": "Les Juifs/grands prêtres"
+        }
+      ],
+      "timeline": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus est arrêté et jugé par Pilate",
+              "name": "Arrestation et procès",
+              "startDate": "Jour 1"
+            },
+            "position": 1
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus est crucifié et meurt sur la croix",
+              "name": "Crucifixion",
+              "startDate": "Jour 1"
+            },
+            "position": 2
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Le corps de Jésus est placé dans un tombeau",
+              "name": "Mise au tombeau",
+              "startDate": "Jour 1-2"
+            },
+            "position": 3
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Marie de Magdala trouve le tombeau vide",
+              "name": "Découverte du tombeau vide",
+              "startDate": "Jour 3"
+            },
+            "position": 4
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus apparaît à ses disciples en plusieurs occasions",
+              "name": "Apparitions aux disciples",
+              "startDate": "Jours suivants"
+            },
+            "position": 5
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Jésus confie une mission à Pierre",
+              "name": "Apparition au lac de Tibériade",
+              "startDate": "Plus tard"
+            },
+            "position": 6
+          }
+        ]
+      }
+    }
+  ]
+}
