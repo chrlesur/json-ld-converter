@@ -4,6 +4,19 @@
 
 JSON-LD Converter est un outil en ligne de commande pour convertir divers formats de documents en JSON-LD en utilisant le vocabulaire Schema.org.
 
+## Fonctionnalités Principales
+
+- Support multi-format d'entrée (texte, PDF, Markdown, HTML)
+- Sortie JSON-LD basée sur Schema.org
+- Architecture modulaire (composants serveur et client CLI)
+- Système de journalisation avancé
+- Gestion de la configuration via YAML
+- Intégration avec différents LLM (Large Language Models) :
+  - Claude (Anthropic)
+  - GPT (OpenAI)
+  - Ollama (pour les modèles locaux)
+  - AI.YOU
+
 ## Installation
 
 ```bash
@@ -44,10 +57,19 @@ json-ld-converter config --set-key conversion.max_tokens --set-value 5000
 
 ### Options additionnelles
 
-- `--engine` : Spécifier le moteur LLM à utiliser (claude, gpt, ollama, aiyou)
-- `--instructions` : Fournir des instructions supplémentaires au LLM
+- `-e, --engine` : Moteur LLM à utiliser (claude, openai, ollama, aiyou)
+- `-m, --model` : Modèle spécifique à utiliser
+- `-o, --output` : Fichier de sortie (par défaut : inputfile.jsonld)
+- `-i, --instructions` : Instructions supplémentaires pour le LLM
+- `--debug` : Active le mode debug pour des logs détaillés
 - `--silent` : Mode silencieux (pas de sortie console)
-- `--debug` : Mode debug (journalisation détaillée)
+
+### Structure du Projet
+
+- `cmd/` : Points d'entrée de l'application
+- `internal/` : Packages internes
+- `pkg/` : Packages réutilisables
+- `data/` : Fichiers de données (ex: schéma Schema.org)
 
 ## Configuration
 
