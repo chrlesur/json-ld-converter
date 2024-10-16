@@ -178,22 +178,53 @@ func (c *Converter) extractProperties(ctx context.Context, content string, mainT
 
 	prompt := fmt.Sprintf(`Analysez le contenu suivant et extrayez les propriétés pertinentes pour un objet de type '%s' selon le schéma Schema.org. Retournez UNIQUEMENT un objet JSON valide, sans texte supplémentaire avant ou après.
 
-Contenu à analyser :
-%s
-
-Propriétés possibles pour le type '%s' :
-%s
-
-Instructions spéciales :
-- Utilisez "mentions" pour lister les personnages ou entités importantes, incluant leurs actions principales sous forme de texte.
-- Incluez "events" comme un tableau d'objets, chacun avec un "name" et une "description" détaillée de l'événement.
-- Utilisez "description" pour fournir un résumé détaillé incluant les actions et relations entre les personnes.
-- Pour "keywords", fournissez une liste de mots-clés pertinents, y compris des verbes d'action.
-- Incluez "datePublished" au format YYYY-MM-DD si une date de publication est mentionnée.
-- Incluez "author" avec le nom de l'auteur si mentionné.
-- Incluez "genre" si le genre de l'œuvre est spécifié.
-
-N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, mainType, content, mainType, strings.Join(schemaType.Properties, ", "))
+	Contenu à analyser :
+	%s
+	
+	Propriétés possibles pour le type '%s' :
+	%s
+	
+	Instructions spéciales pour l'extraction des propriétés :
+	
+	1. "mentions" : Liste exhaustive des personnes et entités importantes.
+	   Format : [{"name": "Nom", "description": "Description détaillée du rôle ou des actions", "type": "Person/Organization/Other"}]
+	
+	2. "locations" : Tous les lieux mentionnés.
+	   Format : [{"name": "Nom du lieu", "description": "Description ou contexte", "type": "City/Country/Landmark"}]
+	
+	3. "events" : Événements majeurs décrits.
+	   Format : [{"name": "Nom de l'événement", "description": "Description détaillée", "date": "Date approximative", "location": "Lieu", "participants": ["Participant 1", "Participant 2"]}]
+	
+	4. "timeline" : Chronologie des événements.
+	   Format : [{"date": "Date/Période", "name": "Nom de l'événement", "description": "Brève description"}]
+	
+	5. "description" : Résumé détaillé du contenu, incluant le contexte historique, les thèmes principaux, et les relations clés entre les personnes et les événements.
+	
+	6. "keywords" : Liste exhaustive de mots-clés.
+	   Format : ["mot-clé1", "mot-clé2", ...] 
+	   Inclure : personnes, lieux, concepts, actions, thèmes.
+	
+	7. "mainEntity" : Sujet principal du texte.
+	   Format : {"name": "Nom", "description": "Brève description"}
+	
+	8. "author" : Auteur du texte, si mentionné.
+	   Format : {"name": "Nom de l'auteur", "description": "Informations sur l'auteur"}
+	
+	9. "datePublished" : Date de publication au format YYYY-MM-DD, si applicable.
+	
+	10. "genre" : Genre ou catégorie du texte.
+	
+	11. "isPartOf" : Si le texte fait partie d'une œuvre plus large.
+		Format : {"name": "Nom de l'œuvre plus large", "type": "Type d'œuvre"}
+	
+	12. "abstract" : Un résumé concis du contenu principal.
+	
+	13. "citation" : Toute référence ou citation notable dans le texte.
+		Format : [{"text": "Texte de la citation", "author": "Auteur de la citation"}]
+	
+	Assurez-vous que chaque propriété extraite est aussi détaillée et précise que possible. Si une information n'est pas disponible ou applicable, ne l'incluez pas dans la réponse JSON.
+	
+	N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, mainType, content, mainType, strings.Join(schemaType.Properties, ", "))
 
 	response, _, err := c.llmClient.Analyze(ctx, prompt, &llm.AnalysisContext{})
 	if err != nil {
@@ -227,8 +258,8 @@ N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, main
 							"@type": "Person",
 							"name":  p["name"],
 						}
-						if action, ok := p["action"].(string); ok && action != "" {
-							mention["description"] = action
+						if description, ok := p["description"].(string); ok && description != "" {
+							mention["description"] = description
 						}
 						mentions = append(mentions, mention)
 					}
@@ -237,26 +268,74 @@ N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, main
 					properties["mentions"] = mentions
 				}
 			}
+		case "locations":
+			if locations, ok := value.([]interface{}); ok {
+				locationsList := make([]map[string]interface{}, 0)
+				for _, location := range locations {
+					if l, ok := location.(map[string]interface{}); ok {
+						locationItem := map[string]interface{}{
+							"@type": "Place",
+							"name":  l["name"],
+						}
+						if description, ok := l["description"].(string); ok && description != "" {
+							locationItem["description"] = description
+						}
+						locationsList = append(locationsList, locationItem)
+					}
+				}
+				if len(locationsList) > 0 {
+					properties["locations"] = locationsList
+				}
+			}
 		case "events":
 			if events, ok := value.([]interface{}); ok {
 				eventsList := make([]map[string]interface{}, 0)
 				for _, event := range events {
 					if e, ok := event.(map[string]interface{}); ok {
-						if name, ok := e["name"].(string); ok && name != "" {
-							eventItem := map[string]interface{}{
-								"@type": "Event",
-								"name":  name,
-							}
-							if desc, ok := e["description"].(string); ok && desc != "" {
-								eventItem["description"] = desc
-							}
-							eventsList = append(eventsList, eventItem)
+						eventItem := map[string]interface{}{
+							"@type": "Event",
+							"name":  e["name"],
 						}
+						if description, ok := e["description"].(string); ok && description != "" {
+							eventItem["description"] = description
+						}
+						if participants, ok := e["participants"].([]interface{}); ok {
+							eventItem["participants"] = participants
+						}
+						if date, ok := e["date"].(string); ok && date != "" {
+							eventItem["startDate"] = date
+						}
+						eventsList = append(eventsList, eventItem)
 					}
 				}
 				if len(eventsList) > 0 {
 					properties["events"] = eventsList
 				}
+			}
+		case "timeline":
+			if timeline, ok := value.([]interface{}); ok {
+				chronology := map[string]interface{}{
+					"@type":           "ItemList",
+					"itemListElement": make([]map[string]interface{}, 0),
+				}
+				for i, item := range timeline {
+					if event, ok := item.(map[string]interface{}); ok {
+						listItem := map[string]interface{}{
+							"@type":    "ListItem",
+							"position": i + 1,
+							"item": map[string]interface{}{
+								"@type":       "Event",
+								"name":        event["name"],
+								"description": event["description"],
+							},
+						}
+						if date, ok := event["date"].(string); ok && date != "" {
+							listItem["item"].(map[string]interface{})["startDate"] = date
+						}
+						chronology["itemListElement"] = append(chronology["itemListElement"].([]map[string]interface{}), listItem)
+					}
+				}
+				properties["timeline"] = chronology
 			}
 		case "keywords":
 			if keywords, ok := value.([]interface{}); ok {
@@ -295,7 +374,6 @@ N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, main
 	return properties, nil
 }
 
-// Fonction utilitaire pour valider le format de date
 func isValidDate(date string) bool {
 	_, err := time.Parse("2006-01-02", date)
 	return err == nil

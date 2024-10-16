@@ -1,0 +1,197 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing",
+      "abstract": "Ce texte examine l'application temporelle de la jurisprudence, en particulier les revirements de la Cour de cassation. Il explique le principe de rétroactivité de la jurisprudence et les mécanismes développés pour moduler cette application, visant à concilier l'évolution du droit avec la sécurité juridique et l'accès à la justice.",
+      "description": "Ce texte traite de l'application de la jurisprudence dans le temps, en particulier des revirements de jurisprudence par la Cour de cassation. Il explique que, contrairement à la loi, la jurisprudence est généralement rétroactive. Cependant, la Cour de cassation a développé des mécanismes pour moduler cette application temporelle, notamment par une motivation renforcée des revirements et des exceptions à la rétroactivité. Ces mécanismes visent à équilibrer l'évolution du droit avec la sécurité juridique et l'accès à la justice. Le texte souligne l'importance de ces pratiques pour garantir un procès équitable et l'accès au juge.",
+      "genre": "Analyse juridique",
+      "keywords": "jurisprudence, Cour de cassation, revirement, rétroactivité, modulation temporelle, motivation renforcée, procès équitable, sécurité juridique, accès au juge, loi, application dans le temps",
+      "mainEntity": {
+        "description": "Analyse des principes et mécanismes régissant l'application dans le temps de la jurisprudence, notamment les revirements de la Cour de cassation",
+        "name": "Application temporelle de la jurisprudence"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Institution judiciaire suprême qui module l'application dans le temps de ses revirements de jurisprudence",
+          "name": "Cour de cassation"
+        },
+        {
+          "@type": "Person",
+          "description": "Ensemble des décisions de justice qui interprètent et appliquent la loi",
+          "name": "Jurisprudence"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing",
+      "abstract": "Le texte présente l'évolution de l'application temporelle de la jurisprudence en France, passant d'une rétroactivité systématique à une modulation plus flexible. Il détaille les étapes clés de cette évolution, notamment les arrêts de 2004, 2006 et 2022 de la Cour de cassation, qui ont progressivement élargi les motifs de non-rétroactivité au-delà de la seule préservation de l'accès au juge, incluant désormais des considérations de sécurité juridique et d'autres intérêts supérieurs.",
+      "description": "Ce texte analyse l'évolution de la jurisprudence concernant l'application dans le temps des revirements jurisprudentiels en France. Il retrace le passage d'un principe initial de rétroactivité à une approche plus nuancée, avec l'introduction progressive d'exceptions. La Cour de cassation a joué un rôle central dans cette évolution, notamment à travers des arrêts clés en 2004, 2006 et 2022. Le texte souligne l'élargissement des motifs de modulation, incluant désormais la sécurité juridique et l'intérêt supérieur de l'enfant, entre autres. Cette évolution rapproche le régime d'application temporelle de la jurisprudence de celui de la loi, avec une tendance croissante à limiter la rétroactivité, tout en prenant en compte les spécificités du droit pénal où le principe de légalité joue un rôle important.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Décisions judiciaires introduisant des exceptions à la rétroactivité pour préserver l'accès au juge",
+          "name": "Arrêts de 2004 et 2006",
+          "participants": [
+            "Cour de cassation"
+          ],
+          "startDate": "2004-2006"
+        },
+        {
+          "@type": "Event",
+          "description": "Décision élargissant les possibilités de modulation au-delà de l'accès au juge",
+          "name": "Arrêt de 2022",
+          "participants": [
+            "Cour de cassation"
+          ],
+          "startDate": "2022"
+        }
+      ],
+      "genre": "Analyse juridique",
+      "keywords": "jurisprudence, Cour de cassation, rétroactivité, modulation temporelle, revirement jurisprudentiel, sécurité juridique, procès équitable, accès au juge, droit pénal, principe de légalité, prescription",
+      "mainEntity": {
+        "description": "Évolution des principes régissant l'application temporelle des revirements jurisprudentiels en France",
+        "name": "Application dans le temps de la jurisprudence"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Institution judiciaire française qui module l'application dans le temps de ses revirements de jurisprudence",
+          "name": "Cour de cassation"
+        },
+        {
+          "@type": "Person",
+          "description": "Ensemble des décisions de justice qui interprètent la loi et dont l'application dans le temps est discutée",
+          "name": "Jurisprudence"
+        }
+      ],
+      "timeline": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Application rétroactive de la jurisprudence comme principe initial",
+              "name": "Principe de rétroactivité",
+              "startDate": "Avant 2004"
+            },
+            "position": 1
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Introduction d'exceptions pour préserver l'accès au juge",
+              "name": "Premières exceptions",
+              "startDate": "2004-2006"
+            },
+            "position": 2
+          },
+          {
+            "@type": "ListItem",
+            "item": {
+              "@type": "Event",
+              "description": "Extension des motifs de modulation au-delà de l'accès au juge",
+              "name": "Élargissement des possibilités de modulation",
+              "startDate": "2022"
+            },
+            "position": 3
+          }
+        ]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing",
+      "abstract": "Ce texte analyse l'application des règles de droit français dans l'espace, couvrant son application sur le territoire national, à l'étranger pour les citoyens français, les spécificités du droit pénal, et les conflits de lois en droit privé. Il souligne l'évolution et la complexification de ces questions dans un contexte international croissant.",
+      "description": "Ce texte traite de l'application des règles de droit dans l'espace, en se concentrant principalement sur le droit français. Il aborde comment le droit français s'applique sur le territoire national et aux citoyens français à l'étranger, les spécificités du droit pénal français à l'international, et les situations de conflits de lois en droit privé. Le texte souligne l'importance croissante du droit international privé pour gérer ces questions complexes dans un contexte de plus en plus mondialisé. Il mentionne également le rôle de la jurisprudence, notamment l'arrêt Princesse de Bauffremont, dans le développement de solutions pour résoudre les conflits de lois.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Décision de jurisprudence ayant développé des solutions pour résoudre les conflits de lois dans des situations internationales",
+          "name": "Arrêt Princesse de Bauffremont",
+          "participants": [
+            "Cour de cassation",
+            "Princesse de Bauffremont"
+          ],
+          "startDate": "Non spécifiée"
+        }
+      ],
+      "genre": "Texte juridique explicatif",
+      "keywords": "droit français, droit international privé, droit pénal, droit civil, conflit de lois, territoire, extraterritorialité, jurisprudence, Cour de cassation, Code civil, fraude",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Pays dont le droit est principalement discuté dans le texte",
+          "name": "France"
+        }
+      ],
+      "mainEntity": {
+        "description": "Étude de l'application des règles de droit français dans différents contextes spatiaux, nationaux et internationaux",
+        "name": "Application du droit dans l'espace"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Juridiction mentionnée dans le contexte du développement de solutions jurisprudentielles pour les conflits de lois",
+          "name": "Cour de cassation"
+        },
+        {
+          "@type": "Person",
+          "description": "Texte juridique français mentionné, notamment son article 3, dans le contexte de l'application du droit dans l'espace",
+          "name": "Code civil"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Thing",
+      "abstract": "Ce texte examine les défis et les méthodes de résolution des conflits de lois dans le contexte international, en soulignant l'importance croissante des conventions internationales et des règlements européens. Il met en lumière la complexité de l'application du droit dans des situations transfrontalières et explique les différentes approches pour déterminer la loi applicable.",
+      "description": "Ce texte aborde l'application du droit dans l'espace et les conflits de lois dans un contexte international. Il explique les différentes méthodes utilisées pour résoudre ces conflits, notamment les règles de conflit et l'application directe de règles matérielles. Le texte souligne l'importance croissante des conventions internationales et des règlements européens dans la détermination des lois applicables. Il met en évidence la complexité de l'application du droit dans des situations juridiques internationales, en prenant pour exemple la succession de Johnny Hallyday. Le texte distingue également la question de la loi applicable de celle de la juridiction compétente.",
+      "genre": "Texte juridique explicatif",
+      "keywords": "droit international privé, conflits de lois, droit français, droit américain, conventions internationales, règlements européens, succession, Johnny Hallyday, règles de conflit, règles matérielles, Code civil, Cour de cassation, juridiction compétente, loi applicable",
+      "locations": [
+        {
+          "@type": "Place",
+          "description": "Mentionnée dans le contexte du droit français",
+          "name": "France"
+        },
+        {
+          "@type": "Place",
+          "description": "Mentionné dans le contexte du droit américain",
+          "name": "États-Unis"
+        },
+        {
+          "@type": "Place",
+          "description": "Mentionnée dans le contexte de la Convention de La Haye",
+          "name": "La Haye"
+        },
+        {
+          "@type": "Place",
+          "description": "Mentionnée dans le contexte des règlements européens",
+          "name": "Europe"
+        }
+      ],
+      "mainEntity": {
+        "description": "Analyse des méthodes et mécanismes utilisés pour résoudre les conflits de lois dans des situations juridiques internationales",
+        "name": "Application du droit dans l'espace et conflits de lois"
+      },
+      "mentions": [
+        {
+          "@type": "Person",
+          "description": "Mentionné dans le contexte d'un exemple de succession internationale",
+          "name": "Johnny Hallyday"
+        },
+        {
+          "@type": "Person",
+          "description": "Mentionnée comme une entité juridique importante dans le contexte du droit français",
+          "name": "Cour de cassation"
+        }
+      ]
+    }
+  ]
+}

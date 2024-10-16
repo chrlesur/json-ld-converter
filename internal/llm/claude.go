@@ -61,7 +61,7 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 	logger.Debug("Starting analysis with Claude API")
 	prompt := BuildPromptWithContext(content, analysisContext)
 
-	logger.Info(fmt.Sprintf("Prepared prompt for Claude API (%d tokens)", tokenizer.CountTokens(prompt)))
+	logger.Debug(fmt.Sprintf("Prepared prompt for Claude API (%d tokens)", tokenizer.CountTokens(prompt)))
 
 	reqBody := claudeRequest{
 		Model: c.Model,
@@ -147,7 +147,7 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 
 	responseText := claudeResp.Content[0].Text
 
-	logger.Info(fmt.Sprintf("API Response : %s (%d tokens)", responseText, tokenizer.CountTokens(responseText)))
+	logger.Debug(fmt.Sprintf("API Response : %s (%d tokens)", responseText, tokenizer.CountTokens(responseText)))
 
 	// Mettre à jour le contexte d'analyse
 	updatedContext, err := UpdateAnalysisContext(responseText, analysisContext)

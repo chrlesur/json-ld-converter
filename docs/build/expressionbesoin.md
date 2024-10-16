@@ -191,6 +191,7 @@ Développer un logiciel en Go qui convertit divers formats de documents (texte, 
 - Utiliser les goroutines et les canaux pour le traitement concurrent lorsque c'est approprié
 - Optimiser pour la gestion de documents jusqu'à 120 000 tokens tout en respectant la limite de 4 000 tokens par segment de sortie JSON-LD
 - Assurer la compatibilité avec différents LLM et leurs limites de contexte spécifiques (par exemple, limiter à environ 200 tokens par batch pour Ollama avec des modèles comme llama3.2)
+- Une méthode ne peut pas faire plus de 80 lignes.
 
 ## Livrables
 

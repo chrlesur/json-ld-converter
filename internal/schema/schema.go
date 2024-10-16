@@ -92,7 +92,13 @@ func LoadSchemaOrg(filePath string) (*SchemaOrg, error) {
 			schema.Properties[id] = schemaProperty
 			logger.Debug(fmt.Sprintf("Loaded schema property: %s", id))
 		default:
-			logger.Warning(fmt.Sprintf("Unknown schema element type: %s for id: %s", itemType, id))
+			schemaType := SchemaType{
+				ID:      id,
+				Label:   getStringValue(itemMap, "rdfs:label"),
+				Comment: getStringValue(itemMap, "rdfs:comment"),
+			}
+			schema.Types[id] = schemaType
+			logger.Debug(fmt.Sprintf("Loaded schema type: %s (type: %s)", id, itemType))
 		}
 	}
 
