@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -18,12 +19,16 @@ const (
 )
 
 var (
-	logLevel   LogLevel
-	logFile    *os.File
-	console    io.Writer
-	mu         sync.Mutex
-	silentMode bool
-	debugMode  bool
+	logLevel        LogLevel
+	logFile         *os.File
+	console         io.Writer
+	mu              sync.Mutex
+	silentMode      bool
+	debugMode       bool
+	totalDocuments  int
+	currentDocument int
+	totalChunks     int
+	currentChunk    int
 )
 
 func Init(level LogLevel, filePath string) error {
@@ -65,6 +70,41 @@ func SetDebugMode(debug bool) {
 	}
 }
 
+func InitProgress(totalDocs int) {
+	mu.Lock()
+	defer mu.Unlock()
+	totalDocuments = totalDocs
+	currentDocument = 0
+	totalChunks = 0
+	currentChunk = 0
+}
+
+func SetTotalChunks(total int) {
+	mu.Lock()
+	defer mu.Unlock()
+	totalChunks = total
+	currentChunk = 0
+}
+
+func UpdateDocumentProgress() {
+	mu.Lock()
+	defer mu.Unlock()
+	currentDocument++
+	currentChunk = 0
+	if !silentMode {
+		fmt.Printf("\rDocument: %d/%d, Chunk: %d/%d", currentDocument, totalDocuments, currentChunk, totalChunks)
+	}
+}
+
+func UpdateChunkProgress() {
+	mu.Lock()
+	defer mu.Unlock()
+	currentChunk++
+	if !silentMode {
+		fmt.Printf("\rDocument: %d/%d, Chunk: %d/%d", currentDocument, totalDocuments, currentChunk, totalChunks)
+	}
+}
+
 func log(level LogLevel, message string) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -81,7 +121,12 @@ func log(level LogLevel, message string) {
 	}
 
 	if !silentMode {
-		fmt.Fprint(console, logMessage)
+		// Clear the current line
+		fmt.Print("\r" + strings.Repeat(" ", 80) + "\r")
+		// Print the log message
+		fmt.Print(logMessage)
+		// Print the progress on the next line
+		fmt.Printf("Document: %d/%d, Chunk: %d/%d", currentDocument, totalDocuments, currentChunk, totalChunks)
 	}
 }
 

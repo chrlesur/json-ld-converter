@@ -14,7 +14,16 @@ func FormatMapToString(m map[string]string) string {
 }
 
 func BuildPromptWithContext(content string, context *AnalysisContext) string {
-	prompt := `
+	prompt := `Analysez silencieusement le document fourni et produisez une représentation structurée avec les éléments suivants :
+
+	Entités principales :
+	- Liste des entités importantes
+
+	Relations clés :
+	- Liste des relations importantes entre les entités
+
+	Résumé :
+	Un bref résumé du contenu
 	Contexte précédent :
     Entités : %s
     Relations : %s

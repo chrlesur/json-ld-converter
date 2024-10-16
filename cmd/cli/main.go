@@ -25,6 +25,7 @@ var (
 	inputFile    *string
 	outputFile   *string
 	engine       string
+	model        string
 	instructions string
 	silent       bool
 	debug        bool
@@ -42,7 +43,38 @@ var convertCmd = &cobra.Command{
 	Use:   "convert [input file]",
 	Short: "Convert a file to JSON-LD",
 	Args:  cobra.ExactArgs(1),
-	RunE:  runConvert,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		inputFile := args[0]
+		if *outputFile == "" {
+			*outputFile = inputFile + ".jsonld"
+		}
+
+		logger.Debug(fmt.Sprintf("Input file: %s", inputFile))
+		logger.Debug(fmt.Sprintf("Output file: %s", *outputFile))
+		logger.Debug(fmt.Sprintf("Engine selected: %s", engine))
+
+		// Vérifiez que le fichier d'entrée existe
+		if _, err := os.Stat(inputFile); os.IsNotExist(err) {
+			return fmt.Errorf("input file does not exist: %s", inputFile)
+		}
+
+		logger.InitProgress(1) // Initialisez la progression pour un seul fichier
+
+		// Configure LLM
+		err := configureLLM(cmd, args)
+		if err != nil {
+			return fmt.Errorf("error configuring LLM: %w", err)
+		}
+
+		// Appel à la fonction de conversion
+		err = convert(inputFile, *outputFile)
+		if err != nil {
+			return fmt.Errorf("conversion error: %w", err)
+		}
+
+		logger.Info("Conversion completed successfully.")
+		return nil
+	},
 }
 
 func init() {
@@ -56,6 +88,7 @@ func init() {
 	convertCmd.Flags().StringVarP(outputFile, "output", "o", "", "Output file for JSON-LD (default is inputfile.jsonld)")
 	convertCmd.Flags().StringVarP(&engine, "engine", "e", "", "LLM engine to use (overrides config)")
 	convertCmd.Flags().StringVarP(&instructions, "instructions", "n", "", "Additional instructions for LLM")
+	convertCmd.Flags().StringVarP(&model, "model", "m", "", "LLM model to use (overrides config)")
 
 	// Flags globaux
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./config.yaml)")
@@ -66,6 +99,7 @@ func init() {
 	rootCmd.AddCommand(newBatchCmd())
 	rootCmd.AddCommand(newConfigCmd())
 	rootCmd.AddCommand(newInteractiveCmd())
+
 }
 
 func initConfig() {
@@ -96,11 +130,10 @@ func main() {
 }
 
 func convert(inputFilePath, outputFilePath string) error {
-	cfg := config.Get()
-	logger.Debug(fmt.Sprintf("Configuration loaded: %+v", cfg))
 
-	logger.Debug(fmt.Sprintf("Input file: %s", inputFilePath))
-	logger.Debug(fmt.Sprintf("Output file: %s", outputFilePath))
+	cfg := config.Get()
+
+	logger.Debug(fmt.Sprintf("Configuration loaded: %+v", cfg))
 
 	// Création du client LLM
 	client, err := llm.NewLLMClient(cfg)
@@ -149,7 +182,7 @@ func convert(inputFilePath, outputFilePath string) error {
 	logger.Debug(fmt.Sprintf("Document segmented into %d parts", len(segments)))
 
 	var allResults []map[string]interface{}
-
+	logger.SetTotalChunks(len(segments))
 	// Conversion de chaque segment en JSON-LD
 	for i, segment := range segments {
 		logger.Debug(fmt.Sprintf("Processing segment %d of %d", i+1, len(segments)))
@@ -187,7 +220,10 @@ func convert(inputFilePath, outputFilePath string) error {
 	}
 	logger.Debug("JSON-LD written to output file successfully")
 
+	logger.UpdateDocumentProgress()
+
 	logger.Info("Conversion completed successfully.")
+
 	return nil
 }
 
@@ -203,6 +239,8 @@ func newBatchCmd() *cobra.Command {
 				return fmt.Errorf("error reading input directory: %w", err)
 			}
 
+			logger.InitProgress(len(files)) // Initialisez la progression pour tous les fichiers
+
 			for _, file := range files {
 				if file.IsDir() {
 					continue
@@ -214,6 +252,7 @@ func newBatchCmd() *cobra.Command {
 				if err != nil {
 					logger.Error(fmt.Sprintf("Error processing file %s: %v", inputFilePath, err))
 				}
+				// La progression est mise à jour dans la fonction Convert
 			}
 			return nil
 		},
@@ -346,6 +385,11 @@ func configureLLM(cmd *cobra.Command, args []string) error {
 		cfg.Conversion.Engine = engine
 	}
 
+	if model != "" {
+		cfg.Conversion.Model = model
+	}
+	logger.Debug(fmt.Sprintf("Engine configured: %s", cfg.Conversion.Engine))
+
 	// Configuration spécifique au LLM
 	switch cfg.Conversion.Engine {
 	case "claude":
@@ -354,7 +398,7 @@ func configureLLM(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("CLAUDE_API_KEY environment variable is not set")
 		}
 		cfg.Conversion.APIKey = apiKey
-	case "gpt":
+	case "openai":
 		apiKey := os.Getenv("OPENAI_API_KEY")
 		if apiKey == "" {
 			return fmt.Errorf("OPENAI_API_KEY environment variable is not set")
@@ -381,29 +425,6 @@ func configureLLM(cmd *cobra.Command, args []string) error {
 		cfg.Conversion.AdditionalInstructions = instructions
 	}
 
-	return nil
-}
-
-func runConvert(cmd *cobra.Command, args []string) error {
-	inputFile := args[0]
-	if *outputFile == "" {
-		*outputFile = inputFile + ".jsonld"
-	}
-
-	logger.Debug(fmt.Sprintf("Input file: %s", inputFile))
-	logger.Debug(fmt.Sprintf("Output file: %s", *outputFile))
-
-	// Vérifiez que le fichier d'entrée existe
-	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
-		return fmt.Errorf("input file does not exist: %s", inputFile)
-	}
-
-	// Appel à la fonction de conversion
-	err := convert(inputFile, *outputFile)
-	if err != nil {
-		return fmt.Errorf("conversion error: %w", err)
-	}
-
-	logger.Info("Conversion completed successfully.")
+	logger.Debug(fmt.Sprintf("Final LLM configuration: %+v", cfg.Conversion))
 	return nil
 }

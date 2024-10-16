@@ -48,8 +48,7 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 		"@context": "https://schema.org",
 	}
 	logger.Debug("Initialized base JSON-LD structure")
-
-	logger.Info("Enriching content with LLM")
+	logger.Debug("Enriching content with LLM")
 	enrichedContent, newContext, err := c.enrichContentWithLLM(ctx, doc.Content)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error enriching content with LLM: %v", err))
@@ -58,7 +57,7 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 	c.analysisContext = newContext
 	logger.Debug("Content successfully enriched by LLM")
 
-	logger.Info("Determining main type")
+	logger.Debug("Determining main type")
 	mainType, err := c.determineMainType(ctx, enrichedContent)
 	if err != nil {
 		logger.Warning(fmt.Sprintf("Error determining main type: %v. Falling back to 'Thing'", err))
@@ -67,8 +66,8 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 	}
 	logger.Debug(fmt.Sprintf("Main type determined: %s", mainType))
 	logger.Debug(fmt.Sprintf("Enriched content: %s", enrichedContent))
+	logger.Debug("Handling nested structures")
 
-	logger.Info("Handling nested structures")
 	nestedContent, err := c.handleNestedStructures(ctx, enrichedContent, mainType)
 	if err != nil {
 		logger.Warning(fmt.Sprintf("Error handling nested structures: %v. Falling back to flat structure", err))
@@ -102,6 +101,7 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 	logger.Debug("Final JSON-LD within token limit")
 
 	logger.Info("Conversion process completed successfully")
+	logger.UpdateChunkProgress()
 	return jsonLD, nil
 }
 
@@ -113,7 +113,7 @@ func (c *Converter) enrichContentWithLLM(ctx context.Context, content string) (s
 	enrichedContent, newContext, err := c.llmClient.Analyze(ctx, prompt, c.analysisContext)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error calling LLM for content enrichment: %v", err))
-		return "", nil, fmt.Errorf("erreur lors de l'appel au LLM : %w", err)
+		return "", nil, fmt.Errorf("Error calling LLM for content enrichment : %w", err)
 	}
 	logger.Debug("Content successfully enriched by LLM")
 	return enrichedContent, newContext, nil

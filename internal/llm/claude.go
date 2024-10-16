@@ -147,7 +147,8 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 
 	responseText := claudeResp.Content[0].Text
 
-	logger.Debug(fmt.Sprintf("API Response : %s (%d tokens)", responseText, tokenizer.CountTokens(responseText)))
+	logger.Info(fmt.Sprintf("API Response received (%d tokens)", tokenizer.CountTokens(responseText)))
+	logger.Debug(fmt.Sprintf("API Response content : %s", responseText))
 
 	// Mettre à jour le contexte d'analyse
 	updatedContext, err := UpdateAnalysisContext(responseText, analysisContext)
@@ -157,6 +158,6 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 	}
 
 	logger.Debug(fmt.Sprintf("Claude API response:\n%s", responseText))
-	logger.Info(fmt.Sprintf("Analysis completed successfully (response length: %d characters)", len(responseText)))
+	logger.Debug(fmt.Sprintf("Analysis completed successfully (response length: %d characters)", len(responseText)))
 	return responseText, updatedContext, nil
 }
