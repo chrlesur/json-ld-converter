@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/chrlesur/json-ld-converter/internal/llm"
@@ -41,6 +42,8 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 		return nil, &TokenLimitError{Limit: c.maxTokens, Count: tokenizer.CountTokens(doc.Content)}
 	}
 
+	logger.Debug(fmt.Sprintf("Starting conversion of document with content: %s", doc.Content))
+
 	jsonLD := map[string]interface{}{
 		"@context": "https://schema.org",
 	}
@@ -63,6 +66,7 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 		jsonLD["@type"] = mainType
 	}
 	logger.Debug(fmt.Sprintf("Main type determined: %s", mainType))
+	logger.Debug(fmt.Sprintf("Enriched content: %s", enrichedContent))
 
 	logger.Info("Handling nested structures")
 	nestedContent, err := c.handleNestedStructures(ctx, enrichedContent, mainType)
@@ -74,6 +78,7 @@ func (c *Converter) Convert(ctx context.Context, doc *parser.Document) (map[stri
 			return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
 		}
 	}
+	logger.Debug(fmt.Sprintf("Nested content: %+v", nestedContent))
 	logger.Debug("Nested structures handled successfully")
 
 	for key, value := range nestedContent {
@@ -165,35 +170,135 @@ func (c *Converter) extractSchemaOrgType(response string) string {
 
 func (c *Converter) extractProperties(ctx context.Context, content string, mainType string) (map[string]interface{}, error) {
 	logger.Debug(fmt.Sprintf("Extracting properties for type: %s", mainType))
-	properties := make(map[string]interface{})
 
-	// Obtenir les propriétés applicables pour le type principal
 	schemaType, ok := c.schemaOrg.GetType(mainType)
 	if !ok {
-		logger.Error(fmt.Sprintf("Type not found in schema: %s", mainType))
 		return nil, fmt.Errorf("type non trouvé dans le schéma : %s", mainType)
 	}
 
-	// Utiliser le LLM pour extraire les valeurs des propriétés applicables
-	for _, prop := range schemaType.Properties {
-		logger.Debug(fmt.Sprintf("Extracting property: %s", prop))
-		prompt := fmt.Sprintf("Extrayez la valeur de la propriété '%s' pour un objet de type '%s' à partir du contenu suivant : %s", prop, mainType, content)
-		value, _, err := c.llmClient.Analyze(ctx, prompt, &llm.AnalysisContext{})
-		if err != nil {
-			logger.Error(fmt.Sprintf("Error extracting property '%s': %v", prop, err))
-			return nil, fmt.Errorf("erreur lors de l'extraction de la propriété '%s' : %w", prop, err)
-		}
+	prompt := fmt.Sprintf(`Analysez le contenu suivant et extrayez les propriétés pertinentes pour un objet de type '%s' selon le schéma Schema.org. Retournez UNIQUEMENT un objet JSON valide, sans texte supplémentaire avant ou après.
 
-		if value != "" {
-			properties[prop] = value
-			logger.Debug(fmt.Sprintf("Property '%s' extracted with value: %s", prop, value))
-		} else {
-			logger.Debug(fmt.Sprintf("No value found for property: %s", prop))
+Contenu à analyser :
+%s
+
+Propriétés possibles pour le type '%s' :
+%s
+
+Instructions spéciales :
+- Utilisez "mentions" pour lister les personnages ou entités importantes, incluant leurs actions principales sous forme de texte.
+- Incluez "events" comme un tableau d'objets, chacun avec un "name" et une "description" détaillée de l'événement.
+- Utilisez "description" pour fournir un résumé détaillé incluant les actions et relations entre les personnes.
+- Pour "keywords", fournissez une liste de mots-clés pertinents, y compris des verbes d'action.
+- Incluez "datePublished" au format YYYY-MM-DD si une date de publication est mentionnée.
+- Incluez "author" avec le nom de l'auteur si mentionné.
+- Incluez "genre" si le genre de l'œuvre est spécifié.
+
+N'incluez PAS les propriétés "@context" et "@type" dans votre réponse.`, mainType, content, mainType, strings.Join(schemaType.Properties, ", "))
+
+	response, _, err := c.llmClient.Analyze(ctx, prompt, &llm.AnalysisContext{})
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors de l'analyse LLM : %w", err)
+	}
+
+	logger.Debug(fmt.Sprintf("LLM response for properties: %s", response))
+
+	jsonStartIndex := strings.Index(response, "{")
+	if jsonStartIndex == -1 {
+		return nil, fmt.Errorf("aucun JSON trouvé dans la réponse LLM")
+	}
+
+	jsonResponse := response[jsonStartIndex:]
+
+	var extractedProperties map[string]interface{}
+	err = json.Unmarshal([]byte(jsonResponse), &extractedProperties)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors du parsing de la réponse JSON : %w", err)
+	}
+
+	properties := make(map[string]interface{})
+	for key, value := range extractedProperties {
+		switch key {
+		case "mentions":
+			if persons, ok := value.([]interface{}); ok {
+				mentions := make([]map[string]interface{}, 0)
+				for _, person := range persons {
+					if p, ok := person.(map[string]interface{}); ok {
+						mention := map[string]interface{}{
+							"@type": "Person",
+							"name":  p["name"],
+						}
+						if action, ok := p["action"].(string); ok && action != "" {
+							mention["description"] = action
+						}
+						mentions = append(mentions, mention)
+					}
+				}
+				if len(mentions) > 0 {
+					properties["mentions"] = mentions
+				}
+			}
+		case "events":
+			if events, ok := value.([]interface{}); ok {
+				eventsList := make([]map[string]interface{}, 0)
+				for _, event := range events {
+					if e, ok := event.(map[string]interface{}); ok {
+						if name, ok := e["name"].(string); ok && name != "" {
+							eventItem := map[string]interface{}{
+								"@type": "Event",
+								"name":  name,
+							}
+							if desc, ok := e["description"].(string); ok && desc != "" {
+								eventItem["description"] = desc
+							}
+							eventsList = append(eventsList, eventItem)
+						}
+					}
+				}
+				if len(eventsList) > 0 {
+					properties["events"] = eventsList
+				}
+			}
+		case "keywords":
+			if keywords, ok := value.([]interface{}); ok {
+				keywordStrings := make([]string, 0)
+				for _, kw := range keywords {
+					if kwStr, ok := kw.(string); ok && kwStr != "" {
+						keywordStrings = append(keywordStrings, kwStr)
+					}
+				}
+				if len(keywordStrings) > 0 {
+					properties["keywords"] = strings.Join(keywordStrings, ", ")
+				}
+			}
+		case "datePublished":
+			if dateStr, ok := value.(string); ok && isValidDate(dateStr) {
+				properties["datePublished"] = dateStr
+			}
+		case "author":
+			if authorName, ok := value.(string); ok && authorName != "" {
+				properties["author"] = map[string]interface{}{
+					"@type": "Person",
+					"name":  authorName,
+				}
+			}
+		default:
+			if str, ok := value.(string); ok && str != "" {
+				properties[key] = str
+			} else {
+				properties[key] = value
+			}
 		}
 	}
 
-	logger.Info(fmt.Sprintf("Extracted %d properties for type %s", len(properties), mainType))
+	logger.Debug(fmt.Sprintf("All extracted properties: %+v", properties))
+
 	return properties, nil
+}
+
+// Fonction utilitaire pour valider le format de date
+func isValidDate(date string) bool {
+	_, err := time.Parse("2006-01-02", date)
+	return err == nil
 }
 
 func (c *Converter) handleNestedStructures(ctx context.Context, content string, mainType string) (map[string]interface{}, error) {
@@ -206,6 +311,8 @@ func (c *Converter) handleNestedStructures(ctx context.Context, content string, 
 		logger.Error(fmt.Sprintf("Error extracting properties: %v", err))
 		return nil, &ConversionError{Stage: "extraction des propriétés", Err: err}
 	}
+
+	logger.Debug(fmt.Sprintf("Extracted properties: %+v", properties))
 
 	for key, value := range properties {
 		logger.Debug(fmt.Sprintf("Processing property: %s", key))
@@ -242,6 +349,7 @@ func (c *Converter) handleNestedStructures(ctx context.Context, content string, 
 		}
 	}
 
+	logger.Debug(fmt.Sprintf("Final jsonLD structure: %+v", jsonLD))
 	logger.Info(fmt.Sprintf("Nested structures handled for type %s with %d properties", mainType, len(jsonLD)))
 	return jsonLD, nil
 }

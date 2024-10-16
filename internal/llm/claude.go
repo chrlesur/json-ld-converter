@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/chrlesur/json-ld-converter/internal/logger"
+	"github.com/chrlesur/json-ld-converter/pkg/tokenizer"
 )
 
 const ClaudeAPIURL = "https://api.anthropic.com/v1/messages"
@@ -60,11 +61,7 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 	logger.Debug("Starting analysis with Claude API")
 	prompt := BuildPromptWithContext(content, analysisContext)
 
-	logger.Info(fmt.Sprintf("PREVIOUS ENTITIES   : %s", FormatMapToString(analysisContext.PreviousEntities)))
-	logger.Info(fmt.Sprintf("PREVIOUS RELATIONS  : %s", strings.Join(analysisContext.PreviousRelations, ", ")))
-	logger.Info(fmt.Sprintf("CONTEXT SUMMARY     : %s", analysisContext.Summary))
-
-	logger.Debug(fmt.Sprintf("Prepared prompt for Claude API:\n%s", prompt))
+	logger.Info(fmt.Sprintf("Prepared prompt for Claude API (%d tokens)", tokenizer.CountTokens(prompt)))
 
 	reqBody := claudeRequest{
 		Model: c.Model,
@@ -85,26 +82,30 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 	var responseBody []byte
 	maxRetries := 5
 	baseTimeout := c.Timeout
+	backoffFactor := 2 // Facteur pour le backoff exponentiel
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		currentTimeout := baseTimeout + time.Duration(attempt)*20*time.Second
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, currentTimeout)
-		defer cancel()
+		currentTimeout := baseTimeout * time.Duration(math.Pow(float64(backoffFactor), float64(attempt)))
 
-		req, err := http.NewRequestWithContext(ctxWithTimeout, "POST", ClaudeAPIURL, bytes.NewBuffer(jsonData))
+		// Créer un nouveau client HTTP avec le timeout actuel
+		clientWithTimeout := &http.Client{
+			Timeout: currentTimeout,
+		}
+
+		// Utiliser le contexte parent sans timeout supplémentaire
+		req, err := http.NewRequestWithContext(ctx, "POST", ClaudeAPIURL, bytes.NewBuffer(jsonData))
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error creating request: %v", err))
 			return "", nil, fmt.Errorf("error creating request: %w", err)
 		}
-		logger.Debug("HTTP request created successfully")
 
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("x-api-key", c.APIKey)
 		req.Header.Set("anthropic-version", "2023-06-01")
-		logger.Debug("Request headers set")
 
 		logger.Info(fmt.Sprintf("Sending request to Claude API (Attempt %d of %d, Timeout: %v)", attempt+1, maxRetries, currentTimeout))
-		resp, err = c.HTTPClient.Do(req)
+		resp, err = clientWithTimeout.Do(req)
+
 		if err == nil {
 			defer resp.Body.Close()
 			responseBody, err = ioutil.ReadAll(resp.Body)
@@ -113,17 +114,21 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 			}
 		}
 
-		logger.Warning(fmt.Sprintf("Attempt %d failed: %v", attempt+1, err))
-		if attempt < maxRetries-1 {
-			retryDelay := time.Duration(attempt+1) * 20 * time.Second
-			logger.Info(fmt.Sprintf("Retrying in %v", retryDelay))
-			time.Sleep(retryDelay)
+		if err != nil {
+			logger.Warning(fmt.Sprintf("Attempt %d failed: %v", attempt+1, err))
+			if attempt < maxRetries-1 {
+				retryDelay := time.Duration(math.Pow(float64(backoffFactor), float64(attempt))) * time.Second
+				logger.Info(fmt.Sprintf("Retrying in %v", retryDelay))
+				time.Sleep(retryDelay)
+			}
+		} else {
+			// Si nous avons une réponse mais pas un statut 200, loguer le corps de la réponse
+			logger.Warning(fmt.Sprintf("Attempt %d failed with status code %d: %s", attempt+1, resp.StatusCode, string(responseBody)))
 		}
 	}
 
 	if resp == nil || resp.StatusCode != http.StatusOK {
-		logger.Error(fmt.Sprintf("All attempts failed. Last error: %v", err))
-		return "", nil, fmt.Errorf("failed to get response from Claude API after %d attempts", maxRetries)
+		return "", nil, fmt.Errorf("failed to get successful response from Claude API after %d attempts", maxRetries)
 	}
 
 	logger.Debug(fmt.Sprintf("Received response from Claude API (status: %d)", resp.StatusCode))
@@ -142,7 +147,7 @@ func (c *ClaudeClient) Analyze(ctx context.Context, content string, analysisCont
 
 	responseText := claudeResp.Content[0].Text
 
-	logger.Info(fmt.Sprintf("API Response : %s", responseText))
+	logger.Info(fmt.Sprintf("API Response : %s (%d tokens)", responseText, tokenizer.CountTokens(responseText)))
 
 	// Mettre à jour le contexte d'analyse
 	updatedContext, err := UpdateAnalysisContext(responseText, analysisContext)

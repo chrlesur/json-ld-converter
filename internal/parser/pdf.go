@@ -43,7 +43,6 @@ func (p *PDFParser) Parse(r io.Reader) (*Document, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		contentBuilder.WriteString(text)
 		structure = append(structure, DocumentElement{
 			Type:    "page",

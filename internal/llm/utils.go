@@ -14,32 +14,7 @@ func FormatMapToString(m map[string]string) string {
 }
 
 func BuildPromptWithContext(content string, context *AnalysisContext) string {
-	prompt := `Analysez le nouveau contenu fourni en tenant compte du contexte existant. Mettez à jour et complétez la représentation ontologique dans le format structuré suivant :
-
-	{ITEMS}
-	[Listez ici tous les items existants, en ajoutant ou modifiant selon le nouveau contenu]
-
-	{PROPERTIES}
-	[Listez ici toutes les propriétés existantes, en ajoutant de nouvelles si nécessaire]
-
-	{STATEMENTS}
-	[Listez ici toutes les déclarations existantes, en ajoutant de nouvelles basées sur le nouveau contenu]
-
-	{END}
-
-	Règles strictes :
-
-	Conservez les QID et PID existants.
-	Pour les nouveaux items ou propriétés, utilisez le prochain numéro disponible.
-	Mettez à jour les descriptions et aliases existants si de nouvelles informations sont disponibles.
-	Ajoutez de nouvelles déclarations sans supprimer les existantes, sauf en cas de contradiction directe.
-	En cas de conflit d'information, privilégiez la source la plus récente.
-	Assurez-vous que chaque élément est sur une nouvelle ligne.
-	Séparez les champs par des barres verticales |.
-	Pour les aliases, utilisez des virgules sans espaces.
-	Pour les qualificateurs et références, utilisez le format clé:valeur, séparés par des virgules.
-	Effectuez cette mise à jour de manière silencieuse, sans commentaires additionnels.
-    
+	prompt := `
 	Contexte précédent :
     Entités : %s
     Relations : %s

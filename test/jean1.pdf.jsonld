@@ -3,103 +3,242 @@
   "@graph": [
     {
       "@context": "https://schema.org",
-      "@type": "Book"
+      "@type": "Article",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce passage couvre le début du ministère public de Jésus. Jean-Baptiste présente Jésus comme l'Agneau de Dieu. Jésus recrute ses premiers disciples, chasse les marchands du Temple à Jérusalem, s'entretient avec Nicodème sur la nouvelle naissance spirituelle, et rencontre une Samaritaine à qui il révèle son identité de Messie. Le texte met en lumière l'identité divine de Jésus et le commencement de sa mission de salut.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jean-Baptiste présente Jésus comme l'Agneau de Dieu, marquant le début de son ministère public.",
+          "name": "Témoignage de Jean-Baptiste"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus commence à rassembler ses premiers disciples qui le suivront dans sa mission.",
+          "name": "Recrutement des premiers disciples"
+        },
+        {
+          "@type": "Event",
+          "description": "À Jérusalem, Jésus chasse les marchands du Temple, affirmant son autorité.",
+          "name": "Purification du Temple"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus s'entretient de nuit avec Nicodème, lui enseignant sur la nouvelle naissance spirituelle.",
+          "name": "Entretien avec Nicodème"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus rencontre une femme samaritaine à un puits et lui révèle son identité de Messie, conduisant de nombreux Samaritains à croire en lui.",
+          "name": "Rencontre avec la Samaritaine"
+        }
+      ],
+      "genre": "Analyse biblique",
+      "headline": "Analyse du début du ministère public de Jésus dans l'Évangile selon Saint Jean",
+      "keywords": "Jésus, Jean-Baptiste, disciples, Nicodème, Samaritaine, témoignage, recrutement, nouvelle naissance, Messie, salut"
     },
     {
       "@context": "https://schema.org",
-      "@type": "CreativeWork"
+      "@type": "Article",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce passage de l'Évangile selon Saint Jean relate plusieurs miracles et enseignements de Jésus, notamment la guérison du fils d'un fonctionnaire royal, la guérison d'un infirme le jour du sabbat, la multiplication des pains, et la marche sur les eaux. Jésus prononce un important discours où il se présente comme le pain de vie descendu du ciel, provoquant l'incompréhension de nombreux disciples. Pierre confesse sa foi en Jésus. Le texte met en évidence l'identité divine de Jésus, son pouvoir sur la nature, et l'opposition grandissante des autorités juives, tout en soulignant le thème de la foi en Jésus comme source de vie éternelle.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus guérit à distance le fils malade d'un fonctionnaire royal, démontrant son pouvoir de guérison même sans présence physique.",
+          "name": "Guérison du fils du fonctionnaire royal"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus guérit un homme infirme près de la piscine de Bethesda le jour du sabbat, provoquant l'opposition des autorités juives pour avoir enfreint la loi du sabbat.",
+          "name": "Guérison de l'infirme de Bethesda"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus nourrit miraculeusement une foule nombreuse en multipliant cinq pains et deux poissons, démontrant son pouvoir sur la nature et sa compassion.",
+          "name": "Multiplication des pains"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus marche sur le lac de Galilée pour rejoindre ses disciples, montrant son pouvoir surnaturel et rassurant ses disciples effrayés.",
+          "name": "Marche sur les eaux"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme le pain de vie descendu du ciel, offrant la vie éternelle à ceux qui croient en lui, ce qui provoque l'incompréhension de nombreux disciples.",
+          "name": "Discours sur le pain de vie"
+        },
+        {
+          "@type": "Event",
+          "description": "Pierre affirme sa foi en Jésus comme le Saint de Dieu, malgré le départ de nombreux disciples suite aux enseignements difficiles de Jésus.",
+          "name": "Confession de Pierre"
+        }
+      ],
+      "genre": "Texte biblique",
+      "headline": "Analyse du nouveau contenu de l'Évangile selon Saint Jean",
+      "keywords": "Jésus, miracles, guérison, multiplication des pains, marche sur les eaux, pain de vie, foi, opposition, vie éternelle"
     },
     {
       "@context": "https://schema.org",
-      "@type": "CreativeWork"
+      "@type": "Article",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce passage de l'Évangile selon Saint Jean relate plusieurs enseignements et controverses de Jésus à Jérusalem. Jésus affirme son origine et sa mission divines, provoquant l'incompréhension et l'hostilité des autorités juives. Il se présente comme la lumière du monde et le bon pasteur, pardonne à une femme adultère, et guérit un aveugle-né le jour du sabbat. Ces événements soulignent l'identité messianique de Jésus, son autorité divine, et le rejet grandissant dont il fait l'objet de la part des chefs religieux, tandis que certains commencent à croire en lui.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus affirme son égalité avec le Père, provoquant l'opposition des autorités juives",
+          "name": "Affirmation de l'origine divine de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus pardonne à une femme adultère, défiant la loi de Moïse et les attentes des autorités",
+          "name": "Pardon de la femme adultère"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus guérit un homme aveugle de naissance le jour du sabbat, suscitant une enquête des Pharisiens",
+          "name": "Guérison de l'aveugle-né"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme la lumière du monde et le bon pasteur, expliquant sa mission divine",
+          "name": "Enseignements sur l'identité de Jésus"
+        }
+      ],
+      "genre": "Texte biblique",
+      "headline": "Analyse du nouveau contenu de l'Évangile selon Saint Jean",
+      "keywords": "Jésus, enseignement, controverse, divinité, guérison, pardon, opposition, Pharisiens, lumière du monde, bon pasteur, sabbat, identité messianique"
     },
     {
       "@context": "https://schema.org",
-      "@type": "CreativeWork"
+      "@type": "CreativeWork",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce passage de l'Évangile selon Saint Jean relate les événements majeurs précédant la Passion de Jésus. Il commence par la résurrection de Lazare, qui provoque l'opposition des autorités juives. S'ensuivent l'onction de Jésus par Marie à Béthanie, son entrée triomphale à Jérusalem, et un discours annonçant sa mort et sa glorification. Le texte culmine avec le lavement des pieds des disciples, illustrant l'enseignement de Jésus sur le service et l'amour. Ces événements mettent en lumière l'identité divine de Jésus, son autorité sur la mort, et l'accomplissement des Écritures, tout en montrant le contraste entre l'hostilité croissante des autorités et l'enthousiasme de la foule.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus ressuscite Lazare d'entre les morts, démontrant son pouvoir sur la mort et provoquant la décision des autorités juives de le faire mourir.",
+          "name": "Résurrection de Lazare"
+        },
+        {
+          "@type": "Event",
+          "description": "Marie oint les pieds de Jésus avec un parfum de grand prix, préfigurant sa mort prochaine.",
+          "name": "Onction à Béthanie"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus entre à Jérusalem acclamé par la foule, accomplissant les prophéties messianiques.",
+          "name": "Entrée triomphale à Jérusalem"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus prononce un discours annonçant sa mort prochaine et sa glorification, expliquant le sens de sa mission.",
+          "name": "Annonce de la glorification"
+        },
+        {
+          "@type": "Event",
+          "description": "Lors du dernier repas, Jésus lave les pieds de ses disciples, enseignant l'humilité et le service.",
+          "name": "Lavement des pieds"
+        }
+      ],
+      "genre": "Texte biblique",
+      "keywords": "résurrection, Lazare, onction, entrée triomphale, Jérusalem, glorification, lavement des pieds, service, amour, accomplissement, opposition, autorité divine",
+      "name": "Analyse de l'Évangile selon Saint Jean"
     },
     {
       "@context": "https://schema.org",
-      "@type": "Book"
+      "@type": "CreativeWork",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce passage de l'Évangile selon Saint Jean relate les derniers enseignements de Jésus à ses disciples avant sa Passion. Il commence par le lavement des pieds, un geste symbolique d'humilité et de service. Jésus annonce la trahison de Judas, fait ses adieux aux disciples, promet l'envoi du Paraclet (l'Esprit Saint) et exhorte ses disciples à demeurer dans son amour. Il se présente comme le chemin vers le Père et comme la vraie vigne dont les disciples sont les sarments. Jésus prévient ses disciples des persécutions à venir et leur promet son retour. Le passage se termine par une longue prière de Jésus au Père, demandant l'unité des croyants.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus lave les pieds de ses disciples et leur explique le sens de ce geste comme un exemple d'humilité et de service.",
+          "name": "Le lavement des pieds"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus révèle que l'un de ses disciples le trahira, faisant référence à Judas.",
+          "name": "L'annonce de la trahison"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus fait ses adieux aux disciples, leur promettant l'envoi du Paraclet et les exhortant à demeurer dans son amour.",
+          "name": "Les discours d'adieu"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus se présente comme la vraie vigne et ses disciples comme les sarments, illustrant leur relation d'interdépendance.",
+          "name": "L'allégorie de la vraie vigne"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus prie le Père pour ses disciples et tous les croyants, demandant leur unité et leur protection.",
+          "name": "La prière sacerdotale"
+        }
+      ],
+      "genre": "Texte biblique",
+      "keywords": "Évangile, Jésus, disciples, lavement des pieds, trahison, adieux, Paraclet, Esprit Saint, vraie vigne, sarments, amour, unité, prière, Père, persécutions, service, humilité",
+      "name": "Résumé de l'Évangile selon Saint Jean (chapitres 13-17)"
     },
     {
       "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Book"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork"
+      "@type": "CreativeWork",
+      "author": {
+        "@type": "Person",
+        "name": "Saint Jean"
+      },
+      "description": "Ce texte analyse le passage final de l'Évangile selon Saint Jean, couvrant la Passion, la mort et la résurrection de Jésus. Il décrit l'arrestation et le procès de Jésus, sa crucifixion, sa mise au tombeau, la découverte du tombeau vide, ses apparitions aux disciples après la résurrection, et un dialogue final avec Pierre. Le texte souligne l'accomplissement des Écritures, le témoignage de la résurrection, la foi des disciples, et la mission confiée par Jésus à ses apôtres.",
+      "events": [
+        {
+          "@type": "Event",
+          "description": "Jésus est arrêté et jugé devant Pilate, confronté aux autorités juives",
+          "name": "Arrestation et procès de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus est crucifié et meurt sur la croix, accomplissant les Écritures",
+          "name": "Crucifixion de Jésus"
+        },
+        {
+          "@type": "Event",
+          "description": "Le corps de Jésus est placé dans un tombeau après sa mort",
+          "name": "Mise au tombeau"
+        },
+        {
+          "@type": "Event",
+          "description": "Marie de Magdala découvre que le tombeau de Jésus est vide",
+          "name": "Découverte du tombeau vide"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus apparaît à ses disciples après sa résurrection, confirmant sa victoire sur la mort",
+          "name": "Apparitions de Jésus ressuscité"
+        },
+        {
+          "@type": "Event",
+          "description": "Jésus confie à Pierre la mission de paître ses brebis, établissant son rôle de leader",
+          "name": "Dialogue entre Jésus et Pierre"
+        }
+      ],
+      "genre": "Analyse biblique",
+      "keywords": "Évangile, Saint Jean, Jésus, Passion, crucifixion, résurrection, disciples, témoignage, foi, mission, accomplissement, Écritures",
+      "name": "Analyse du passage final de l'Évangile selon Saint Jean"
     }
   ]
 }
